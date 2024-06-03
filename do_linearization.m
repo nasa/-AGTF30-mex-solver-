@@ -9,13 +9,47 @@
 % positive and negative direction.
 
 function [A, B, C, D, failure_mode] = do_linearization(solver_independents_solution_trim, ...
-    X_trim, Y_trim, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, environmental_conditions, ...
-    solver_targets, health_params, solver_independents_selection, solver_dependents_selection, DO_ELECTRIC_MOTORS)
+    X_trim, Y_trim, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, ...
+    environmental_conditions, health_params, DO_ELECTRIC_MOTORS)
 
 PERTURBATION_FRACTION = 0.0003;  % 0.0003 = 0.03%
 PWR_TRQ_FORMULA_CONSTANT = 5252.113; % Conversion factor to maintain units of lb-ft on torque perturbations
 
 failure_mode = "None"; % As long as no failures happen, this value should persist
+
+solver_independents_selection = [   true;  % 1) WIn
+    true;  % 2) FAN_RLIn
+    true;  % 3) LPC_RLIn
+    true;  % 4) HPC_RLIn
+    true;  % 5) BPR
+    true;  % 6) HPT_PR
+    true;  % 7) LPT_PR
+    false;  % 8) WfIn
+    false;  % 9) VAFNIn
+    false;  % 10) VBVIn
+    false;  % 11) N2In
+    false;  % 12) N3In
+    false;  % 13) HPpwrIn
+    false]; % 14) LPpwrIn
+
+solver_dependents_selection = [ true;  % 1) W21err
+    true;  % 2) W24aerr
+    true;  % 3) W36err
+    true;  % 4) W45err
+    true;  % 5) W5err
+    true;  % 6) W8err
+    true;  % 7) W18err
+    false;  % 8) N2dot
+    false;  % 9) N3dot
+    false;  % 10) LPC SM error
+    false;  % 11) LPT Pwr Ratio error
+    false;  % 12) Fnet error
+    false;  % 13) T4 error
+    false]; % 14) HPCNcMap error
+
+solver_targets = [   NaN;     % LPC_SM_target
+    NaN;     % LPT_HPXratio_target
+    NaN];    % Fnet_target
 
 %% State 1: Low-pressure shaft speed (N2)
 N1c_perturbation = N1c * PERTURBATION_FRACTION;
