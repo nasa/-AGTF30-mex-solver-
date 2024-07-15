@@ -20,7 +20,7 @@ Specify a set of operating conditions and engine health parameters in the file *
 #### 2. Execute the solver routine
 Run *solve_at_points.m* using MATLAB. The program will attempt to solve the engine system at each steady-state operating condition specified in inputs.csv.  The program will perform linearization at each operating condition by methodically perturbing model inputs and measuring model outputs until the defined accuracy is achieved. If the solver is unable to find a solution for a given operating condition, it will give up and move on to the next operating condition.
 
-### 3. Access outputs
+#### 3. Access outputs
 The program will output a MATLAB structured array to *outputs.mat*. Output will include:
 
 - The altitude, mach number, corrected fan speed, ambient temperature differential, and health parameters describing the operating condition.
