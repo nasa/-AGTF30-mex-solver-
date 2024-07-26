@@ -63,6 +63,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpt_WcMod, GTF_hpt_EffMod, GTF_hpt_hp_En;
     double GTF_lpt_WcMod, GTF_lpt_EffMod, GTF_lpt_hp_En;
 
+    double *blds;
+    blds = mxGetPr(BLDS_IN);
+
+
     /*--- Define Block Inputs/Outputs ---*/
     /*--- Ambient ---*/
     double amb_u[3]; /*--- Inputs:  Alt, dTamb, MN ---*/
@@ -709,10 +713,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpc_s_C_Wc = 0.1328;
     double GTF_hpc_s_C_PR = 0.595594;
     double GTF_hpc_s_C_Eff = 0.994014;
-    // double GTF_hpc_Wcust[1] = {0};
-    // double GTF_hpc_FracWbld[3] = {0.02, 0.0693, 0.0625};
-    double *blds;
-    blds = mxGetPr(BLDS_IN);
+    // double GTF_hpc_Wcust[1] = {0}; // default AGTF30 values
+    // double GTF_hpc_FracWbld[3] = {0.02, 0.0693, 0.0625}; // default AGTF30 values
     double GTF_hpc_Wcust[1] = {blds[0]};
     double GTF_hpc_FracWbld[3] = {blds[1], blds[2], blds[3]};
     
