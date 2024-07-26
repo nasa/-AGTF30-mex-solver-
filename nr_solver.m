@@ -6,7 +6,7 @@
 % This function iteratively executes the MEX engine model, varying
 % independent variables to drive dependent variables to zero.
 
-function [DEP,CMD,X,U,Y,E,converged, solver_iterations] = nr_solver(ENV_IN,CMD_IN,TAR_OUT,HEALTH_PARAMS_IN,Ivec,Dvec)
+function [DEP,CMD,X,U,Y,E,converged, solver_iterations] = nr_solver(ENV_IN,CMD_IN,TAR_OUT,HEALTH_PARAMS_IN,BLDS_IN,Ivec,Dvec)
 %% Set solver parameters
 % Arrays have sets of parameters which are progressively used by the
 % solver as needed. For example, if the parameters in the first indices 
@@ -91,7 +91,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
     CMD(CMD > IMinMax(:,2)) = IMinMax(CMD > IMinMax(:,2),2); % Set any max violations to maximum 
     CMD(CMD < IMinMax(:,1)) = IMinMax(CMD < IMinMax(:,1),1); % Set any min violations to minimum 
     
-    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN);
+    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN);
     
     % check for convergence 
     if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -116,7 +116,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 + JPerSS);
     
         if (CMD(Ivec_range(i1)) <= IMinMax(Ivec_range(i1),2))
-            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN);
+            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN);
             
             % check for convergence 
             if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -134,7 +134,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 - JPerSS);
     
         if (CMD(Ivec_range(i1)) >= IMinMax(Ivec_range(i1),1))
-            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN);
+            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN);
             
             % check for convergence 
             if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -174,7 +174,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         
         CMD(CMD > IMinMax(:,2)) = IMinMax(CMD > IMinMax(:,2),2); % Set any max violations to maximum 
         CMD(CMD < IMinMax(:,1)) = IMinMax(CMD < IMinMax(:,1),1); % Set any min violations to minimum 
-        [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN);
+        [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN);
         
         % check for convergence 
         if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -210,7 +210,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
                 CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 + JPerSS);
     
                 if (CMD(Ivec_range(i1)) <= IMinMax(Ivec_range(i1),2))
-                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN);
+                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN);
                     
                     % check for convergence 
                     if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -228,7 +228,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
                 CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 - JPerSS);
     
                 if (CMD(Ivec_range(i1)) >= IMinMax(Ivec_range(i1),1))
-                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN);
+                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN);
                     
                     % check for convergence 
                     if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)

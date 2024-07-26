@@ -104,10 +104,16 @@ for input_num = 1:num_inputs
     solver_initial_guess(11) = N1c * ...
         sqrt(T2/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
 
+    
+    %% HPC bleeds
+    bleeds(1) = 0;
+    bleeds(2:4) = [0.02, 0.0693, 0.0625];
+
+
     %% Run the solver
     [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, solver_initial_guess, ...
-        solver_targets, health_params, solver_independents_selection, solver_dependents_selection);
+        solver_targets, health_params, bleeds, solver_independents_selection, solver_dependents_selection);
     
     if (Y(55) < E(13))
         % Core nozzle backflow
@@ -117,7 +123,7 @@ for input_num = 1:num_inputs
     if convergence_reached
         [A, B, C, D, linearization_failure_mode] = do_linearization(solver_independents_solution, ...
             X, Y, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, ...
-            environmental_conditions, health_params, DO_ELECTRIC_MOTORS);
+            environmental_conditions, health_params, bleeds, DO_ELECTRIC_MOTORS);
     else
         linearization_failure_mode = "Not attempted";
     end
