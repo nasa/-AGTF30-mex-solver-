@@ -63,9 +63,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpt_WcMod, GTF_hpt_EffMod, GTF_hpt_hp_En;
     double GTF_lpt_WcMod, GTF_lpt_EffMod, GTF_lpt_hp_En;
 
-    double *blds;
-    blds = mxGetPr(BLDS_IN);
-
 
     /*--- Define Block Inputs/Outputs ---*/
     /*--- Ambient ---*/
@@ -640,9 +637,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpc_RlineDes = 2;
     double GTF_hpc_IDes = 2;
     double GTF_hpc_SMNEn = 0;
-    double GTF_hpc_CustBldEn = 1;
+    double GTF_hpc_CustBldEn = 0;
     double GTF_hpc_FBldEn = 1;
-    double GTF_hpc_CustBldNm = 1;
+    double GTF_hpc_CustBldNm = 0;
     double GTF_hpc_FracBldNm = 3;
     double GTF_hpc_Y_C_Map_NcVec[13] = {0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.925, 0.95, 0.975, 1, 1.025, 1.05};
     double GTF_hpc_X_C_RlineVec[11] = {1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3};
@@ -715,9 +712,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpc_s_C_Eff = 0.994014;
     // double GTF_hpc_Wcust[1] = {0}; // default AGTF30 values
     // double GTF_hpc_FracWbld[3] = {0.02, 0.0693, 0.0625}; // default AGTF30 values
-    double GTF_hpc_Wcust[1] = {blds[0]};
-    double GTF_hpc_FracWbld[3] = {blds[1], blds[2], blds[3]};
 
+    double *blds;
+    blds = mxGetPr(BLDS_IN);
+    mexPrintf("blds: %0.4f, %0.4f, %0.4f, %0.4f\n", blds[0], blds[1], blds[2], blds[3]);
+    
+    double GTF_hpc_Wcust[1] = {blds[0]};
+    mexPrintf("GTF_hpc_Wcust: %0.4f\n", GTF_hpc_Wcust[0]);
+
+    double GTF_hpc_FracWbld[3] = {blds[1], blds[2], blds[3]};
+    // mexPrintf("GTF_hpc_FracWbld: %0.4f, %0.4f, %0.4f\n", GTF_hpc_FracWbld[0], GTF_hpc_FracWbld[1], GTF_hpc_FracWbld[2]);
+    
     struct CompressorStruct GTF_hpc = {
         GTF_hpc_NcDes,
         GTF_hpc_PRDes,

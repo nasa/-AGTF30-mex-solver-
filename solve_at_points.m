@@ -109,6 +109,9 @@ for input_num = 1:num_inputs
     bleeds(1) = 0;
     bleeds(2:4) = [0.02, 0.0693, 0.0625];
 
+    % bleeds(1) = 1;
+    % bleeds(2:4) = [0.04, 0.1386, 0.125];
+
 
     %% Run the solver
     [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
