@@ -119,6 +119,10 @@ for input_num = 1:num_inputs
             X, Y, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, ...
             environmental_conditions, health_params, DO_ELECTRIC_MOTORS);
     else
+        A = [];
+        B = [];
+        C = [];
+        D = [];
         linearization_failure_mode = "Not attempted";
     end
 
