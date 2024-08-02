@@ -5,12 +5,14 @@
 #include "types_TMATS_additions.h"
 #include "constants_TMATS.h"
 
+
 /* Input Arguments */
 #define	ENV_IN	prhs[0]
 #define	CMD_IN	prhs[1]
 #define TAR_OUT  prhs[2]
 #define HEALTH_PARAMS_IN prhs[3]
-#define SETTINGS_IN prhs[4]
+#define BLDS_IN prhs[4]
+#define SETTINGS_IN prhs[5]
 
 /* Output Arguments */
 #define	DEP_OUT	plhs[0]
@@ -64,6 +66,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     double *settings_in;
     double ENABLE_DEBUG;
+
+    double *blds;
+    blds = mxGetPr(BLDS_IN);
 
     /*--- Define Block Inputs/Outputs ---*/
     /*--- Ambient ---*/
@@ -638,9 +643,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpc_RlineDes = 2;
     double GTF_hpc_IDes = 2;
     double GTF_hpc_SMNEn = 0;
-    double GTF_hpc_CustBldEn = 0;
+    double GTF_hpc_CustBldEn = 1;
     double GTF_hpc_FBldEn = 1;
-    double GTF_hpc_CustBldNm = 0;
+    double GTF_hpc_CustBldNm = 1;
     double GTF_hpc_FracBldNm = 3;
     double GTF_hpc_Y_C_Map_NcVec[13] = {0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.925, 0.95, 0.975, 1, 1.025, 1.05};
     double GTF_hpc_X_C_RlineVec[11] = {1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3};
@@ -711,9 +716,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpc_s_C_Wc = 0.1328;
     double GTF_hpc_s_C_PR = 0.595594;
     double GTF_hpc_s_C_Eff = 0.994014;
-    double GTF_hpc_Wcust[1] = {0}; 
-    double GTF_hpc_FracWbld[3] = {0.02, 0.0693, 0.0625};
-    
+    // double GTF_hpc_Wcust[1] = {0}; // default AGTF30 values
+    // double GTF_hpc_FracWbld[3] = {0.02, 0.0693, 0.0625}; // default AGTF30 values
+    double GTF_hpc_Wcust[1] = {blds[0]};
+    double GTF_hpc_FracWbld[3] = {blds[1], blds[2], blds[3]};
+
     struct CompressorStruct GTF_hpc = {
         GTF_hpc_NcDes,
         GTF_hpc_PRDes,
@@ -1121,8 +1128,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*===================================================================*/
     /*===================================================================*/
     /* Check for proper number of arguments. */
-    if (nrhs != 5) {
-    mexErrMsgTxt("5 inputs to MEX engine model required");
+    if (nrhs != 6) {
+    mexErrMsgTxt("6 inputs to MEX engine model required");
     } else if (nlhs != 5) {
     mexErrMsgTxt("5 output arguments to MEX engine model required");
     }

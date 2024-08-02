@@ -12,11 +12,11 @@
 clear; clc;
 
 %% Definition of constants
+DO_ELECTRIC_MOTORS = false; % if true, then the U-vector will include electric motor powers
+ENABLE_DEBUG = false; % setting to false will suppress error and warning messages in the terminal
+
 STANDARD_DAY_TEMPERATURE_R = 518.67; % defined by International Standard Atmosphere
 GEAR_RATIO = 3.1; % AGTF30 gear ratio between low-pressure shaft and fan
-
-DO_ELECTRIC_MOTORS = false; % if true, then the U-vector will include electric motor powers
-ENABLE_DEBUG = true; % setting to false will suppress error and warning messages in the terminal
 
 solver_independents_selection = [   true;  %--- WIn ---
     true;  %--- FAN_RLIn ---
@@ -105,10 +105,16 @@ for input_num = 1:num_inputs
     solver_initial_guess(11) = N1c * ...
         sqrt(T2/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
 
+    
+    %% HPC bleeds
+    bleeds(1) = 0;
+    bleeds(2:4) = [0.02, 0.0693, 0.0625];
+
+
     %% Run the solver
     [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, solver_initial_guess, ...
-        solver_targets, health_params, solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
+        solver_targets, health_params, bleeds, solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
     
     if (Y(55) < E(13))
         % Core nozzle backflow
@@ -118,7 +124,7 @@ for input_num = 1:num_inputs
     if convergence_reached
         [A, B, C, D, linearization_failure_mode] = do_linearization(solver_independents_solution, ...
             X, Y, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, ...
-            environmental_conditions, health_params, DO_ELECTRIC_MOTORS, ENABLE_DEBUG);
+            environmental_conditions, health_params, bleeds, DO_ELECTRIC_MOTORS, ENABLE_DEBUG);
     else
         A = [];
         B = [];
@@ -150,6 +156,7 @@ for input_num = 1:num_inputs
     outputs(input_num).C = C;
     outputs(input_num).D = D;
     outputs(input_num).linearization_failure_mode = linearization_failure_mode;
+    
     
     %% Display to terminal
     if convergence_reached

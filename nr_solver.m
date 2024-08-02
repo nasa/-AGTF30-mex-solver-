@@ -6,7 +6,7 @@
 % This function iteratively executes the MEX engine model, varying
 % independent variables to drive dependent variables to zero.
 
-function [DEP,CMD,X,U,Y,E,converged, solver_iterations] = nr_solver(ENV_IN,CMD_IN,TAR_OUT,HEALTH_PARAMS_IN,Ivec,Dvec, ENABLE_DEBUG)
+function [DEP,CMD,X,U,Y,E,converged, solver_iterations] = nr_solver(ENV_IN,CMD_IN,TAR_OUT,HEALTH_PARAMS_IN,BLDS_IN,Ivec,Dvec,ENABLE_DEBUG)
 %% Set solver parameters
 % Arrays have sets of parameters which are progressively used by the
 % solver as needed. For example, if the parameters in the first indices 
@@ -62,9 +62,8 @@ end
 %% Make sure number of independents equals number of dependents
 if (sum(Ivec) ~= sum(Dvec))
     if ENABLE_DEBUG
-        disp('Must have same number of Independents and Dependents!');
+    disp('Must have same number of Independents and Dependents!');
     end
-
     DEP = NaN;
     CMD = NaN;
     X = NaN;
@@ -94,7 +93,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
     CMD(CMD > IMinMax(:,2)) = IMinMax(CMD > IMinMax(:,2),2); % Set any max violations to maximum 
     CMD(CMD < IMinMax(:,1)) = IMinMax(CMD < IMinMax(:,1),1); % Set any min violations to minimum 
     
-    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, ENABLE_DEBUG);
+    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN, ENABLE_DEBUG);
     
     % check for convergence 
     if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -119,7 +118,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 + JPerSS);
     
         if (CMD(Ivec_range(i1)) <= IMinMax(Ivec_range(i1),2))
-            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, ENABLE_DEBUG);
+            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN, ENABLE_DEBUG);
             
             % check for convergence 
             if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -137,7 +136,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 - JPerSS);
     
         if (CMD(Ivec_range(i1)) >= IMinMax(Ivec_range(i1),1))
-            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, ENABLE_DEBUG);
+            [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN, ENABLE_DEBUG);
             
             % check for convergence 
             if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -158,8 +157,8 @@ for solver_paramater_index = 1:length(MaxIter_array)
         elseif all(isfinite(Jneg(:,Jcol)))
             J(:,Jcol) = Jneg(:,Jcol);
         else
-            if ENABLE_DEBUG
-                disp("Cannot form invertible Jacobian matrix.");
+            if enable_debug
+            disp("Cannot form invertible Jacobian matrix.");
             end
             continue;
         end
@@ -179,7 +178,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         
         CMD(CMD > IMinMax(:,2)) = IMinMax(CMD > IMinMax(:,2),2); % Set any max violations to maximum 
         CMD(CMD < IMinMax(:,1)) = IMinMax(CMD < IMinMax(:,1),1); % Set any min violations to minimum 
-        [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, ENABLE_DEBUG);
+        [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN, ENABLE_DEBUG);
         
         % check for convergence 
         if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -190,7 +189,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         % Check for component map violation. Return non convergence on any map violations 
         if ((max(E(3:7) ./ MapRange(:,2)) > 1.0) || (min(E(3:7) ./ MapRange(:,1)) < 1.0))
             if ENABLE_DEBUG
-                disp(['Component map violation with parameter index ' num2str(solver_paramater_index) ' NcMaps: ' num2str(E(3)) ' ' num2str(E(4)) ' ' num2str(E(5)) ' ' num2str(E(6)) ' ' num2str(E(7))]);
+            display(['Component map violation with parameter index ' num2str(solver_paramater_index) ' NcMaps: ' num2str(E(3)) ' ' num2str(E(4)) ' ' num2str(E(5)) ' ' num2str(E(6)) ' ' num2str(E(7))]);
             end
             continue;
         end
@@ -216,7 +215,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
                 CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 + JPerSS);
     
                 if (CMD(Ivec_range(i1)) <= IMinMax(Ivec_range(i1),2))
-                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, ENABLE_DEBUG);
+                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN, ENABLE_DEBUG);
                     
                     % check for convergence 
                     if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -234,7 +233,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
                 CMD(Ivec_range(i1)) = CMD(Ivec_range(i1)) * (1 - JPerSS);
     
                 if (CMD(Ivec_range(i1)) >= IMinMax(Ivec_range(i1),1))
-                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, ENABLE_DEBUG);
+                    [DEP,X,U,Y,E] = MEX_engine_model(ENV_IN, CMD, TAR_OUT, HEALTH_PARAMS_IN, BLDS_IN, ENABLE_DEBUG);
                     
                     % check for convergence 
                     if (max(abs(DEP(Dvec) ./ Dtol(Dvec))) < 1.0)
@@ -255,7 +254,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
                     J(:,Jcol) = Jneg(:,Jcol);
                 else
                     if ENABLE_DEBUG
-                        disp("Cannot form invertible Jacobian matrix.");
+                    disp("Cannot form invertible Jacobian matrix.");
                     end
                     continue;
                 end
