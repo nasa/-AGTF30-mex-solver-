@@ -164,6 +164,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
     
     %% Iterate until convergence reached or MaxIter reached 
     while (solver_iterations < MaxIter)
+        solver_iterations = solver_iterations + 1;
     
         CMD(Ivec_range) = CMD0(Ivec_range) - Jinv * DEP0(Dvec_range);
     
@@ -257,7 +258,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
     
         end
     
-        solver_iterations = solver_iterations + 1;
+        % solver_iterations = solver_iterations + 1;
     
     end
 

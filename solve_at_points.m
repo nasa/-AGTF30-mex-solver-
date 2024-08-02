@@ -109,9 +109,6 @@ for input_num = 1:num_inputs
     bleeds(1) = 0;
     bleeds(2:4) = [0.02, 0.0693, 0.0625];
 
-    % bleeds(1) = 1;
-    % bleeds(2:4) = [0.04, 0.1386, 0.125];
-
 
     %% Run the solver
     [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
@@ -128,6 +125,10 @@ for input_num = 1:num_inputs
             X, Y, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, ...
             environmental_conditions, health_params, bleeds, DO_ELECTRIC_MOTORS);
     else
+        A = [];
+        B = [];
+        C = [];
+        D = [];
         linearization_failure_mode = "Not attempted";
     end
 
@@ -154,6 +155,7 @@ for input_num = 1:num_inputs
     outputs(input_num).C = C;
     outputs(input_num).D = D;
     outputs(input_num).linearization_failure_mode = linearization_failure_mode;
+    
     
     %% Display to terminal
     if convergence_reached
