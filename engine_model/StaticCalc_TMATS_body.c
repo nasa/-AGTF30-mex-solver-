@@ -7,7 +7,7 @@
 #include "simstruc.h"
 #endif
 
-void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* prm)
+void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* prm, const double enable_debug)
 {
     double WIn      = u[0];     /* Input Flow [pps] 	*/
     double htIn     = u[1];     /* enthaply [BTU/lbm] 	*/
@@ -39,7 +39,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
     Rt = interp1Ac(prm->X_FARVec,prm->T_RtArray,FARcIn,prm->A,&interpErr);
     if (interpErr == 1 && *(prm->IWork+Er1)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating Rt. Vector definitions may need to be expanded.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er1) = 1;
     }
@@ -52,7 +54,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
         gammatg = interp2Ac(prm->X_FARVec,prm->Y_TtVec,prm->T_gammaArray,FARcIn,TtIn,prm->A,prm->B,&interpErr);
         if (interpErr == 1 && *(prm->IWork+Er2)==0){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Warning in %s, Error calculating gammatg. Vector definitions may need to be expanded.\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er2) = 1;
         }
@@ -63,7 +67,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
         gammasg = interp2Ac(prm->X_FARVec,prm->Y_TtVec,prm->T_gammaArray,FARcIn,TsMNg,prm->A,prm->B,&interpErr);
         if (interpErr == 1 && *(prm->IWork+Er2)==0){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Warning in %s, Error calculating gammasg. Vector definitions may need to be expanded.\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er2) = 1;
         }
@@ -92,7 +98,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
             gammasg = interp2Ac(prm->X_FARVec,prm->Y_TtVec,prm->T_gammaArray,FARcIn,TsMNg,prm->A,prm->B,&interpErr);
             if (interpErr == 1 && *(prm->IWork+Er2)==0){
                 #ifdef MATLAB_MEX_FILE
+                if (enable_debug) {
                 printf("Warning in %s, Error calculating iteration gammasg. Vector definitions may need to be expanded.\n", prm->BlkNm);
+                }
                 #endif
                 *(prm->IWork+Er2) = 1;
             }
@@ -112,7 +120,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
         }
         if (iter == maxiter && *(prm->IWork+Er3)==0 ){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Warning in %s, Error calculating Ps at MN = prm->MNIn. There may be error in block outputs\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er3) = 1;
         }
@@ -135,7 +145,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
         gammasg = interp2Ac(prm->X_FARVec,prm->Y_TtVec,prm->T_gammaArray,FARcIn,Tsg,prm->A,prm->B,&interpErr);
         if (interpErr == 1 && *(prm->IWork+Er4)==0){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Warning in %s, Error calculating iteration gammasg. Vector definitions may need to be expanded.\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er4) = 1;
         }
@@ -165,7 +177,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
             gammasg = interp2Ac(prm->X_FARVec,prm->Y_TtVec,prm->T_gammaArray,FARcIn,Tsg,prm->A,prm->B,&interpErr);
             if (interpErr == 1 && *(prm->IWork+Er4)==0){
                 #ifdef MATLAB_MEX_FILE
+                if (enable_debug) {
                 printf("Warning in %s, Error calculating iteration gammasg. Vector definitions may need to be expanded.\n", prm->BlkNm);
+                }
                 #endif
                 *(prm->IWork+Er4) = 1;
             }
@@ -206,7 +220,9 @@ void StaticCalc_TMATS_body(double *y, const double *u, const StaticCalcStruct* p
     else {
         if (*(prm->IWork+Er5)==0 ){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Warning in %s, SolveType_M is not valid. There may be error in block outputs\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er5) = 1;
         }

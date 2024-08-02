@@ -6,9 +6,9 @@
 #include "simstruc.h"
 #endif
 
-extern void StaticCalc_TMATS_body(double *y1, const double *u1, const StaticCalcStruct* prm);
+extern void StaticCalc_TMATS_body(double *y1, const double *u1, const StaticCalcStruct* prm, const double enable_debug);
 
-void Duct_TMATS_body(double *y, const double *u, const DuctStruct* prm)
+void Duct_TMATS_body(double *y, const double *u, const DuctStruct* prm, const double enable_debug)
 {
     
     double WIn       = u[0];     /* Mass flow */
@@ -49,7 +49,7 @@ void Duct_TMATS_body(double *y, const double *u, const DuctStruct* prm)
     };
 
     /*---- call StaticCalc to retrieve Mach number --- */
-    StaticCalc_TMATS_body(&staticcalc_y[0], &u[0], &duct);
+    StaticCalc_TMATS_body(&staticcalc_y[0], &u[0], &duct, enable_debug);
     MN = staticcalc_y[3];
 
     /*--- calculate PtOut ---*/

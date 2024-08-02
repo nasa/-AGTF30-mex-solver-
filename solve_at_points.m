@@ -16,6 +16,7 @@ STANDARD_DAY_TEMPERATURE_R = 518.67; % defined by International Standard Atmosph
 GEAR_RATIO = 3.1; % AGTF30 gear ratio between low-pressure shaft and fan
 
 DO_ELECTRIC_MOTORS = false; % if true, then the U-vector will include electric motor powers
+ENABLE_DEBUG = true; % setting to false will suppress error and warning messages in the terminal
 
 solver_independents_selection = [   true;  %--- WIn ---
     true;  %--- FAN_RLIn ---
@@ -107,7 +108,7 @@ for input_num = 1:num_inputs
     %% Run the solver
     [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, solver_initial_guess, ...
-        solver_targets, health_params, solver_independents_selection, solver_dependents_selection);
+        solver_targets, health_params, solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
     
     if (Y(55) < E(13))
         % Core nozzle backflow
@@ -117,7 +118,7 @@ for input_num = 1:num_inputs
     if convergence_reached
         [A, B, C, D, linearization_failure_mode] = do_linearization(solver_independents_solution, ...
             X, Y, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, ...
-            environmental_conditions, health_params, DO_ELECTRIC_MOTORS);
+            environmental_conditions, health_params, DO_ELECTRIC_MOTORS, ENABLE_DEBUG);
     else
         A = [];
         B = [];

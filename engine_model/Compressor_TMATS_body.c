@@ -7,7 +7,7 @@
 #include "simstruc.h"
 #endif
 
-void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, const double* Wcust, const double* FracWbld, const CompressorStruct* prm)
+void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, const double* Wcust, const double* FracWbld, const CompressorStruct* prm, const double enable_debug)
 {
     double WIn      = u[0];     /* Input Flow [pps] 	*/
     double htIn     = u[1];     /* Input Enthalpy [BTU/lbm] */
@@ -91,13 +91,17 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
 
     if ((prm->WcMapCol != prm->B || prm->WcMapRw != prm->A || prm->WcMapLay !=prm->C) && *(prm->IWork+Er1)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating WcMap. Table size does not match axis vector lengths.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er1) = 1;
     }
     else if (interpErr == 1 && *(prm->IWork+Er1)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating WcMap. Vector definitions may need to be expanded.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er1) = 1;
     }
@@ -117,13 +121,17 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
 
     if ((prm->PRMapCol != prm->B || prm->PRMapRw != prm->A || prm->PRMapLay !=prm->C) && *(prm->IWork+Er2)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating PRMap. Table size does not match axis vector lengths.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er2) = 1;
     }
     else if (interpErr == 1 && *(prm->IWork+Er2)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating PRMap. Vector definitions may need to be expanded.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er2) = 1;
     }
@@ -143,13 +151,17 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
 
     if ((prm->EffMapCol != prm->B || prm->EffMapRw != prm->A || prm->EffMapLay !=prm->C) && *(prm->IWork+Er3)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating EffMap. Table size does not match axis vector lengths.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er3) = 1;
     }
     else if (interpErr == 1 && *(prm->IWork+Er3)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating EffMap. Vector definitions may need to be expanded.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er3) = 1;
     }
@@ -210,7 +222,9 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
         }
         if (i > 4*MaxNumberBleeds && *(prm->IWork+Er4)==0){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Error in %s, Number of bleeds in compressor exceeds 100... Array overflow! Reading Bad Data\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er4) = 1;
         }
@@ -240,7 +254,9 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
         }
         if (i > 4*MaxNumberBleeds && *(prm->IWork+Er4)==0){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Error in %s, Number of bleeds in compressor exceeds 100... Array overflow! Reading Bad Data\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er4) = 1;
         }
@@ -275,14 +291,18 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
             SMWcVec[i] = interp1Ac(prm->Z_C_AlphaVec, prm->X_C_Map_WcSurgeVec + prm->C*i, Alpha,prm->C, &interpErr);
             if (interpErr == 1 && *(prm->IWork+Er5)==0){
                 #ifdef MATLAB_MEX_FILE
+                if (enable_debug) {
                 printf("Warning in %s, Error calculating 1D SMWcVec. Vector definitions may need to be adjusted.\n", prm->BlkNm);
+                }
                 #endif
                 *(prm->IWork+Er5) = 1;
             }
             SMPRVec[i] = interp1Ac(prm->Z_C_AlphaVec, prm->T_C_Map_PRSurgeVec + prm->C*i, Alpha,prm->C, &interpErr);
             if (interpErr == 1 && *(prm->IWork+Er5)==0){
                 #ifdef MATLAB_MEX_FILE
+                if (enable_debug) {
                 printf("Warning in %s, Error calculating 1D SMPRVec. Vector definitions may need to be adjusted.\n", prm->BlkNm);
+                }
                 #endif
                 *(prm->IWork+Er5) = 1;
             }
@@ -290,7 +310,9 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
         SPRMap = interp1Ac(SMWcVec, SMPRVec,WcMap,prm->D/prm->C,&interpErr);
         if (interpErr == 1 && *(prm->IWork+Er5)==0){
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Warning in %s, Error calculating 2D SPR. Vector definitions may need to be adjusted.\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er5) = 1;
         }
@@ -300,7 +322,9 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
         
     if (interpErr == 1 && *(prm->IWork+Er5)==0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating SPR. Vector definitions may need to be expanded.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er5) = 1;
     }
@@ -342,6 +366,7 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
                 SPRMapTemp = interp1Ac(SMWcVec, SMPRVec,WcMapTemp,prm->D/prm->C,&interpErr);
                 if (interpErr == 1 && *(prm->IWork+Er5)==0){
                     #ifdef MATLAB_MEX_FILE
+                    if (enable_debug) {
                     printf("Warning in %s, Error calculating 2D SPR for SMN solver. Vector definitions may need to be expanded.\n", prm->BlkNm);
                     #endif
                     *(prm->IWork+Er5) = 1;
@@ -352,7 +377,9 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
                 SPRMapTemp = interp1Ac(prm->X_C_Map_WcSurgeVec,prm->T_C_Map_PRSurgeVec,WcMapTemp,prm->D,&interpErr);
                 if (interpErr == 1 && *(prm->IWork+Er5)==0){
                     #ifdef MATLAB_MEX_FILE
+                    if (enable_debug) {
                     printf("Warning in %s, Error calculating SPR for SMN solver. Vector definitions may need to be expanded.\n", prm->BlkNm);
+                    }
                     #endif
                     *(prm->IWork+Er5) = 1;
                 }
@@ -379,7 +406,9 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
         if (iterations <= 0)
         {
             #ifdef MATLAB_MEX_FILE
+            if (enable_debug) {
             printf("Warning in %s, SM solver could not converge.\n", prm->BlkNm);
+            }
             #endif
             *(prm->IWork+Er5) = 2;
         }
@@ -395,7 +424,7 @@ void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, c
         SMavail = ((WcCalcin/WcMapTemp) / (PR/PRMapTemp) - 1.0) * 100.;
     }
     // Else, we're calculating normal SMW.
-    else
+    } else
     {
         SMavail = (SPR - PR)*divby(PR) * 100;
         SMMap = (SPRMap - PRMap)*divby(PRMap) * 100;
