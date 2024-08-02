@@ -12,11 +12,11 @@
 clear; clc;
 
 %% Definition of constants
-STANDARD_DAY_TEMPERATURE_R = 518.67; % defined by International Standard Atmosphere
-GEAR_RATIO = 3.1; % AGTF30 gear ratio between low-pressure shaft and fan
-
 DO_ELECTRIC_MOTORS = false; % if true, then the U-vector will include electric motor powers
 ENABLE_DEBUG = false; % setting to false will suppress error and warning messages in the terminal
+
+STANDARD_DAY_TEMPERATURE_R = 518.67; % defined by International Standard Atmosphere
+GEAR_RATIO = 3.1; % AGTF30 gear ratio between low-pressure shaft and fan
 
 solver_independents_selection = [   true;  %--- WIn ---
     true;  %--- FAN_RLIn ---
