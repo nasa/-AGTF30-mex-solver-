@@ -10,7 +10,7 @@
 
 function [A, B, C, D, failure_mode] = do_linearization(solver_independents_solution_trim, ...
     X_trim, Y_trim, altitude, mach_number, N1c, VAFN_interpolant, VBV_interpolant, ...
-    environmental_conditions, health_params, bleeds, DO_ELECTRIC_MOTORS)
+    environmental_conditions, health_params, bleeds, DO_ELECTRIC_MOTORS, ENABLE_DEBUG)
 
 PERTURBATION_FRACTION = 0.0003;  % 0.0003 = 0.03%
 PWR_TRQ_FORMULA_CONSTANT = 5252.113; % Conversion factor to maintain units of lb-ft on torque perturbations
@@ -64,19 +64,23 @@ solver_initial_guess(11) = X_trim(1) + N2_perturbation;
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~=1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X1 positive perturbation did not converge');
     failure_mode = "N2+";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X1 positive perturbation resulted in core nozzle backflow');
     failure_mode = "N2+";
+    end
     return;
 end
 
@@ -93,19 +97,23 @@ solver_initial_guess(11) = X_trim(1) - N2_perturbation;
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~=1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X1 negative perturbation did not converge');
     failure_mode = "N2-";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X1 negative perturbation resulted in core nozzle backflow');
     failure_mode = "N2-";
+    end
     return;
 end
 
@@ -127,19 +135,23 @@ solver_initial_guess(12) = X_trim(2) + N3_perturbation;
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X2 positive perturbation did not converge');
     failure_mode = "N3+";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X2 positive perturbation resulted in core nozzle backflow');
     failure_mode = "N3+";
+    end
     return;
 end
 
@@ -154,19 +166,23 @@ solver_initial_guess(12) = X_trim(2) - N3_perturbation;
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X2 negative perturbation did not converge');
     failure_mode = "N3-";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('X2 negative perturbation resulted in core nozzle backflow');
     failure_mode = "N3-";
+    end
     return;
 end
 
@@ -188,19 +204,23 @@ solver_initial_guess(8) = solver_independents_solution_trim(8) + fuel_flow_pertu
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U1 positive perturbation did not converge');
     failure_mode = "Wf+";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U1 positive perturbation resulted in core nozzle backflow');
     failure_mode = "Wf+";
+    end
     return;
 end
 
@@ -215,19 +235,23 @@ solver_initial_guess(8) = solver_independents_solution_trim(8) - fuel_flow_pertu
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U1 negative perturbation did not converge');
     failure_mode = "Wf-";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U1 negative perturbation resulted in core nozzle backflow');
     failure_mode = "Wf-";
+    end
     return;
 end
 
@@ -251,19 +275,23 @@ solver_initial_guess(13) = solver_independents_solution_trim(13) + HP_pwr_pertur
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U2 positive perturbation did not converge');
     failure_mode = "HPpwr+";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U2 positive perturbation resulted in core nozzle backflow');
     failure_mode = "HPpwr+";
+    end
     return;
 end
 
@@ -279,19 +307,23 @@ solver_initial_guess(13) = solver_independents_solution_trim(13) - HP_pwr_pertur
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U2 negative perturbation did not converge');
     failure_mode = "HPpwr-";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U2 negative perturbation resulted in core nozzle backflow');
     failure_mode = "HPpwr-";
+    end
     return;
 end
 
@@ -318,19 +350,23 @@ solver_initial_guess(14) = solver_initial_guess(14) + LP_pwr_perturbation;
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U3 positive perturbation did not converge');
     failure_mode = "LPpwr+";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U3 positive perturbation resulted in core nozzle backflow');
     failure_mode = "LPpwr+";
+    end
     return;
 end
 
@@ -346,18 +382,22 @@ solver_initial_guess(14) = solver_initial_guess(14) - LP_pwr_perturbation;
 [solver_dependents_solution, solver_independents_solution, X, U, Y, E, convergence_reached, ...
         solver_iterations] = nr_solver(environmental_conditions, ...
         solver_initial_guess, solver_targets, health_params, bleeds, ...
-        solver_independents_selection, solver_dependents_selection);
+        solver_independents_selection, solver_dependents_selection, ENABLE_DEBUG);
 
 if (convergence_reached ~= 1)
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U3 negative perturbation did not converge');
     failure_mode = "LPpwr-";
+    end
     return;
 end
 
 if (Y(55) < E(13))
+    if ENABLE_DEBUG
     disp(['(' num2str(altitude), ', ' num2str(mach_number) ', ' num2str(N1c) ')']);
     disp('U3 negative perturbation resulted in core nozzle backflow');
+    end
     failure_mode = "LPpwr-";
     return;
 end

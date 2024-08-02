@@ -7,7 +7,7 @@
 #include "simstruc.h"
 #endif
 
-void Inlet_TMATS_body(double *y, const double *u, const InletStruct* prm)
+void Inlet_TMATS_body(double *y, const double *u, const InletStruct* prm, const double enable_debug)
 {
     
     double WIn       = u[0];     /* Mass flow */
@@ -26,7 +26,9 @@ void Inlet_TMATS_body(double *y, const double *u, const InletStruct* prm)
     eRam_sf = interp1Ac(prm->X_eRamVec_M,prm->T_eRamtbl_M,PtIn/PambIn,prm->A,&interpErr);
     if (interpErr == 1 && *(prm->IWork+Er1) == 0){
         #ifdef MATLAB_MEX_FILE
+        if (enable_debug) {
         printf("Warning in %s, Error calculating eRam_sf. Vector definitions may need to be expanded.\n", prm->BlkNm);
+        }
         #endif
         *(prm->IWork+Er1) = 1;
     }

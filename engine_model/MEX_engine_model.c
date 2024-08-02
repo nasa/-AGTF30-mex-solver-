@@ -12,6 +12,7 @@
 #define TAR_OUT  prhs[2]
 #define HEALTH_PARAMS_IN prhs[3]
 #define BLDS_IN prhs[4]
+#define SETTINGS_IN prhs[5]
 
 /* Output Arguments */
 #define	DEP_OUT	plhs[0]
@@ -29,15 +30,15 @@
 #endif
 
 extern void Ambient_TMATS_body(double *y, const double *u, const AmbientStruct* prm);
-extern void Inlet_TMATS_body(double *y, const double *u, const InletStruct* prm);
-extern void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, const double* Wcust, const double* FracWbld, const CompressorStruct* prm);
+extern void Inlet_TMATS_body(double *y, const double *u, const InletStruct* prm, const double enable_debug);
+extern void Compressor_TMATS_body(double* y, double* y1, double* y2, const double* u, const double* Wcust, const double* FracWbld, const CompressorStruct* prm, const double enable_debug);
 extern void Splitter_TMATS(double* y, double* y1, const double* u, const double* u1);
-extern void Duct_TMATS_body(double *y, const double *u, const DuctStruct* prm);
+extern void Duct_TMATS_body(double *y, const double *u, const DuctStruct* prm, const double enable_debug);
 extern void Valve_TMATS_body(double* y, const double* u, const ValveStruct* prm);
-extern void Nozzle_TMATS_body(double* y, const double* u, const NozzleStruct* prm);
-extern void StaticCalc_TMATS_body(double *y1, const double *u1, const StaticCalcStruct* prm);
+extern void Nozzle_TMATS_body(double* y, const double* u, const NozzleStruct* prm, const double enable_debug);
+extern void StaticCalc_TMATS_body(double *y1, const double *u1, const StaticCalcStruct* prm, const double enable_debug);
 extern void Burner_TMATS_body(double* y, const double* u, const BurnStruct* prm);
-extern void Turbine_TMATS_body(double* y, const double* u, const double* CoolFlow, const TurbineStruct* prm);
+extern void Turbine_TMATS_body(double* y, const double* u, const double* CoolFlow, const TurbineStruct* prm, const double enable_debug);
 extern void Shaft_TMATS_body(double *y, const double *u, const ShaftStruct* prm);
 extern void SFCCalc_TMATS(double* y, const double* u);
 
@@ -63,9 +64,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double GTF_hpt_WcMod, GTF_hpt_EffMod, GTF_hpt_hp_En;
     double GTF_lpt_WcMod, GTF_lpt_EffMod, GTF_lpt_hp_En;
 
+    double *settings_in;
+    double ENABLE_DEBUG;
+
     double *blds;
     blds = mxGetPr(BLDS_IN);
-
 
     /*--- Define Block Inputs/Outputs ---*/
     /*--- Ambient ---*/
@@ -1125,8 +1128,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*===================================================================*/
     /*===================================================================*/
     /* Check for proper number of arguments. */
-    if (nrhs != 5) {
-    mexErrMsgTxt("5 inputs to MEX engine model required");
+    if (nrhs != 6) {
+    mexErrMsgTxt("6 inputs to MEX engine model required");
     } else if (nlhs != 5) {
     mexErrMsgTxt("5 output arguments to MEX engine model required");
     }
@@ -1158,6 +1161,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	(MAX(m,n) != 13) || (MIN(m,n) != 1)) { 
 	mexErrMsgTxt("Requires that HEALTH_PARAMS_IN be a 13 x 1 vector."); 
     } 
+
+    // m = mxGetM(SETTINGS_IN); 
+    // n = mxGetN(SETTINGS_IN);
+    // if (!mxIsDouble(SETTINGS_IN) || mxIsComplex(SETTINGS_IN) || 
+	// (MAX(m,n) != 1) || (MIN(m,n) != 1)) { 
+	// mexErrMsgTxt("Requires that SETTINGS_IN be a 1 x 1 vector."); 
+    // } 
     
     /* Create a matrix for the return argument */ 
     DEP_OUT = mxCreateDoubleMatrix(12, 1, mxREAL); 
@@ -1228,6 +1238,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     GTF_lpt_EffMod = health_params[12];
     GTF_lpt_hp_En  = 1;
 
+    /*--- Other settings ---*/
+    settings_in = mxGetPr(SETTINGS_IN);
+    ENABLE_DEBUG = settings_in[0];
+
     /*--- Ambient ---*/
     amb_u[0] = AltIn;
     amb_u[1] = dTambIn;
@@ -1255,7 +1269,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     inlet_u[4] = FAR0;
     inlet_u[5] = Ps0;
 
-    Inlet_TMATS_body(&inlet_y[0], &inlet_u[0], &GTF_inlet);
+    Inlet_TMATS_body(&inlet_y[0], &inlet_u[0], &GTF_inlet, ENABLE_DEBUG);
     W2 = inlet_y[0];
     ht2 = inlet_y[1];
     Tt2 = inlet_y[2];
@@ -1277,7 +1291,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     compressor_u[10] = GTF_fan_s_C_PR * (1 + GTF_fan_PRMod * GTF_fan_hp_En);
     compressor_u[11] = GTF_fan_s_C_Eff * (1 + GTF_fan_EffMod * GTF_fan_hp_En);
 
-    Compressor_TMATS_body(&compressor_y[0], &compressor_y1[0], &compressor_y2[0], &compressor_u[0], &GTF_fan_Wcust[0], &GTF_fan_FracWbld[0], &GTF_fan);
+    Compressor_TMATS_body(&compressor_y[0], &compressor_y1[0], &compressor_y2[0], &compressor_u[0], &GTF_fan_Wcust[0], &GTF_fan_FracWbld[0], &GTF_fan, ENABLE_DEBUG);
     W21 = compressor_y[0];
     ht21 = compressor_y[1];
     Tt21 = compressor_y[2];
@@ -1333,7 +1347,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     duct_u[2] = Tt22;
     duct_u[3] = Pt22;
     duct_u[4] = FAR22;
-    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct2);
+    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct2, ENABLE_DEBUG);
     W23 = duct_y[0];
     ht23 = duct_y[1];
     Tt23 = duct_y[2];
@@ -1355,7 +1369,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     compressor_u[10] = GTF_lpc_s_C_PR * (1 + GTF_lpc_PRMod * GTF_lpc_hp_En);
     compressor_u[11] = GTF_lpc_s_C_Eff * (1 + GTF_lpc_EffMod * GTF_lpc_hp_En);
 
-    Compressor_TMATS_body(&compressor_y[0], &compressor_y1[0], &compressor_y2[0], &compressor_u[0], &GTF_lpc_Wcust[0], &GTF_lpc_FracWbld[0], &GTF_lpc);
+    Compressor_TMATS_body(&compressor_y[0], &compressor_y1[0], &compressor_y2[0], &compressor_u[0], &GTF_lpc_Wcust[0], &GTF_lpc_FracWbld[0], &GTF_lpc, ENABLE_DEBUG);
     W24a = compressor_y[0];
     ht24a = compressor_y[1];
     Tt24a = compressor_y[2];
@@ -1412,7 +1426,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     duct_u[2] = Tt24;
     duct_u[3] = Pt24;
     duct_u[4] = FAR24;
-    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct25);
+    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct25, ENABLE_DEBUG);
     W25 = duct_y[0];
     ht25 = duct_y[1];
     Tt25 = duct_y[2];
@@ -1425,7 +1439,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     duct_u[2] = Tt15;
     duct_u[3] = Pt15;
     duct_u[4] = FAR15;
-    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct17);
+    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct17, ENABLE_DEBUG);
     W17 = duct_y[0];
     ht17 = duct_y[1];
     Tt17 = duct_y[2];
@@ -1451,7 +1465,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         nozzle_u[7] = VAFNIn;
     }
 
-    Nozzle_TMATS_body(&nozzle_y[0], &nozzle_u[0], &GTF_NozByp);
+    Nozzle_TMATS_body(&nozzle_y[0], &nozzle_u[0], &GTF_NozByp, ENABLE_DEBUG);
     W18 = nozzle_y[0];
     Fg18 = nozzle_y[1];
     NErr18 = nozzle_y[2];
@@ -1485,7 +1499,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     compressor_u[10] = GTF_hpc_s_C_PR * (1 + GTF_hpc_PRMod * GTF_hpc_hp_En);
     compressor_u[11] = GTF_hpc_s_C_Eff * (1 + GTF_hpc_EffMod * GTF_hpc_hp_En);
 
-    Compressor_TMATS_body(&compressor_y[0], &compressor_y1[0], &compressor_y2[0], &compressor_u[0], &GTF_hpc_Wcust[0], &GTF_hpc_FracWbld[0], &GTF_hpc);
+    Compressor_TMATS_body(&compressor_y[0], &compressor_y1[0], &compressor_y2[0], &compressor_u[0], &GTF_hpc_Wcust[0], &GTF_hpc_FracWbld[0], &GTF_hpc, ENABLE_DEBUG);
     W36 = compressor_y[0];
     ht36 = compressor_y[1];
     Tt36 = compressor_y[2];
@@ -1519,7 +1533,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     static_u[2] = Tt36;
     static_u[3] = Pt36;
     static_u[4] = FAR36;
-    StaticCalc_TMATS_body(&static_y[0], &compressor_y[0], &GTF_hpcstatic);
+    StaticCalc_TMATS_body(&static_y[0], &compressor_y[0], &GTF_hpcstatic, ENABLE_DEBUG);
     Ts36 = static_y[0];
     Ps36 = static_y[1]; 
 
@@ -1563,7 +1577,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     turbinecool_u[8] = compressor_y2[13];
     turbinecool_u[9] = compressor_y2[14];
     
-    Turbine_TMATS_body(&turbine_y[0], &turbine_u[0], &turbinecool_u[0], &GTF_hpt);
+    Turbine_TMATS_body(&turbine_y[0], &turbine_u[0], &turbinecool_u[0], &GTF_hpt, ENABLE_DEBUG);
 
     W45 = turbine_y[0];
     ht45 = turbine_y[1];
@@ -1592,7 +1606,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     duct_u[2] = Tt45;
     duct_u[3] = Pt45;
     duct_u[4] = FAR45;
-    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct45);
+    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct45, ENABLE_DEBUG);
     W48 = duct_y[0];
     ht48 = duct_y[1];
     Tt48 = duct_y[2];
@@ -1619,7 +1633,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     turbinecool_u[3] = compressor_y2[3];
     turbinecool_u[4] = compressor_y2[4];
     
-    Turbine_TMATS_body(&turbine_y[0], &turbine_u[0], &turbinecool_u[0], &GTF_lpt);
+    Turbine_TMATS_body(&turbine_y[0], &turbine_u[0], &turbinecool_u[0], &GTF_lpt, ENABLE_DEBUG);
 
     W5 = turbine_y[0];
     ht5 = turbine_y[1];
@@ -1648,7 +1662,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     duct_u[2] = Tt5;
     duct_u[3] = Pt5;
     duct_u[4] = FAR5;
-    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct5);
+    Duct_TMATS_body(&duct_y[0],&duct_u[0],&GTF_duct5, ENABLE_DEBUG);
     W7 = duct_y[0];
     ht7 = duct_y[1];
     Tt7 = duct_y[2];
@@ -1664,7 +1678,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     nozzle_u[5] = Ps0;
     nozzle_u[6] = GTF_NozCor_N_TArea_M;
     nozzle_u[7] = GTF_NozCor_N_EArea_M;
-    Nozzle_TMATS_body(&nozzle_y[0], &nozzle_u[0], &GTF_NozCor);
+    Nozzle_TMATS_body(&nozzle_y[0], &nozzle_u[0], &GTF_NozCor, ENABLE_DEBUG);
     W8 = nozzle_y[0];
     Fg8 = nozzle_y[1];
     NErr8 = nozzle_y[2];
