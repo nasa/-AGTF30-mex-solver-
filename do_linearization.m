@@ -263,7 +263,7 @@ D_col1n = -(Y - Y_trim) ./ fuel_flow_perturbation;
 B_col1 = (B_col1p + B_col1n)/2;
 D_col1 = (D_col1p + D_col1n)/2;
 
-%% Input 2: High-pressure shaft power extraction (from electric motor)
+%% Input 2: High-pressure shaft power injection (from electric motor)
 HP_pwr_perturbation = solver_independents_solution_trim(13) * PERTURBATION_FRACTION;
 N3_mech = Y_trim(3);
 HP_trq_perturbation = PWR_TRQ_FORMULA_CONSTANT*HP_pwr_perturbation/N3_mech;
@@ -336,7 +336,7 @@ D_col2n = -(Y - Y_trim) ./ HP_trq_perturbation;
 B_col2 = (B_col2p + B_col2n)/2;
 D_col2 = (D_col2p + D_col2n)/2;
 
-%% Input 3: Low-pressure shaft power extraction (from electric motor)
+%% Input 3: Low-pressure shaft power injection (from electric motor)
 % Perturbing LP from 0 must use addition of constant rather than multiplication.
 % Made to be the same amount as HP pwr perturbation.
 LP_pwr_perturbation = HP_pwr_perturbation;

@@ -12,8 +12,8 @@
 clear; clc;
 
 %% Definition of constants
-DO_ELECTRIC_MOTORS = false; % if true, then the U-vector will include electric motor powers
-ENABLE_DEBUG = false; % setting to false will suppress error and warning messages in the terminal
+DO_ELECTRIC_MOTORS = true; % if true, then the U-vector will include electric motor powers
+ENABLE_DEBUG = true; % setting to true will enable error and warning messages in the terminal
 
 STANDARD_DAY_TEMPERATURE_R = 518.67; % defined by International Standard Atmosphere
 GEAR_RATIO = 3.1; % AGTF30 gear ratio between low-pressure shaft and fan
@@ -105,10 +105,23 @@ for input_num = 1:num_inputs
     solver_initial_guess(11) = N1c * ...
         sqrt(T2/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
 
+    % These lines can be used to manually set electric motor power injections.
+    % Negative values correspond to power extraction.
+    % High pressure shaft power injection (default is -350)
+    solver_initial_guess(13) = -350;
+    % Low pressure shaft power injection (default is 0)
+    solver_inital_guess(14) = 0;
+
     
     %% HPC bleeds
+    % Customer bleeds (lbm/sec)
     bleeds(1) = 0;
-    bleeds(2:4) = [0.02, 0.0693, 0.0625];
+
+    % Cooling bleeds (as a fraction of total HPC flow). 
+    % Location of each bleed flow's reintroduction is noted.
+    bleeds(2:4) = [ 0.02, ...   % LPT exit
+                    0.0693, ... % HPT exit
+                    0.0625];    % HPT forward
 
 
     %% Run the solver

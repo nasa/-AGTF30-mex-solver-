@@ -23,9 +23,8 @@ function solver_initial_guess = get_initial_guess(altitude, mach_number, N1c, dT
     fuel_flow = IC_interpolants.Wf(altitude, N1c, mach_number) * dT_adj;    % Fuel Flow (pps)
     VAFN = IC_interpolants.VAFN(altitude, N1c, mach_number) * dT_adj;   % Variable area fan nozzle
     VBV = IC_interpolants.VBV(altitude, N1c, mach_number);  % Variable bleed valve
-    HP_shaft_power_injection = -350;    % High-pressure shaft power extraction
-    LP_shaft_power_injection = 0;   % Low-pressure shaft power extraction
-
+    HP_shaft_power_injection = -350;    % High-pressure shaft power injection
+    LP_shaft_power_injection = 0;   % Low-pressure shaft power injection
     solver_initial_guess = [air_flow, FAN_Rline, LPC_Rline, HPC_Rline, bypass_ratio, HPT_pressure_ratio, LPT_pressure_ratio, fuel_flow, VAFN, VBV, N2, N3, HP_shaft_power_injection, LP_shaft_power_injection]';
     return;
 

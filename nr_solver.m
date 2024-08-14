@@ -157,7 +157,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         elseif all(isfinite(Jneg(:,Jcol)))
             J(:,Jcol) = Jneg(:,Jcol);
         else
-            if enable_debug
+            if ENABLE_DEBUG
             disp("Cannot form invertible Jacobian matrix.");
             end
             continue;
