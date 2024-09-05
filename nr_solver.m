@@ -32,8 +32,8 @@ for i=1:length(MaxIter_array)
         0       Inf;  % 10) VBVIn 
         0       Inf;  % 11) N2In 
         0       Inf;  % 12) N3In 
-        -Inf    0.0;  % 13) HPpwrIn 
-        -Inf    0.0];  % 14) LPpwrIn 
+        -Inf    Inf;  % 13) HPpwrIn 
+        -Inf    Inf];  % 14) LPpwrIn 
     
     % Define Dependent Vector Tolerances -
     Dtol_array(i, :, :) = ...

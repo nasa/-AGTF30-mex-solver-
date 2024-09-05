@@ -264,7 +264,12 @@ B_col1 = (B_col1p + B_col1n)/2;
 D_col1 = (D_col1p + D_col1n)/2;
 
 %% Input 2: High-pressure shaft power injection (from electric motor)
-HP_pwr_perturbation = solver_independents_solution_trim(13) * PERTURBATION_FRACTION;
+if solver_independents_solution_trim(13) == 0
+    HP_pwr_perturbation = 0.1;
+else
+    HP_pwr_perturbation = solver_independents_solution_trim(13) * PERTURBATION_FRACTION;
+end
+
 N3_mech = Y_trim(3);
 HP_trq_perturbation = PWR_TRQ_FORMULA_CONSTANT*HP_pwr_perturbation/N3_mech;
 

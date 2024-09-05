@@ -110,7 +110,7 @@ for input_num = 1:num_inputs
     % High pressure shaft power injection (default is -350)
     solver_initial_guess(13) = -350;
     % Low pressure shaft power injection (default is 0)
-    solver_inital_guess(14) = 0;
+    solver_initial_guess(14) = 0;
 
     
     %% HPC bleeds
