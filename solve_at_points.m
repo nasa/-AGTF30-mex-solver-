@@ -50,6 +50,7 @@ solver_targets = [  NaN;    %--- LPC_SM_target ---
                     NaN;    %--- Fnet_target ---
                     NaN];  %--- T45_target ---
 
+
 %% Setup simulations
 addpath('engine_model');
 
@@ -75,6 +76,7 @@ outputs = repmat(struct('altitude', NaN, ...
     'linearization_failure_mode', NaN), ...
     num_inputs, 1);
 
+
 %% Iterate through all specified operating conditions
 for input_num = 1:num_inputs
     altitude = inputs_array(input_num).altitude;
@@ -89,10 +91,12 @@ for input_num = 1:num_inputs
             'Convergence is highly unlikely.']);
     end
 
+
     %% Get environmental conditions at the operating condition
     environmental_conditions = [altitude, mach_number, dTamb]';
     ambient_conditions = Ambient_C(environmental_conditions);
     T2 = ambient_conditions(1);
+
 
     %% Get initial guess for solver
     solver_initial_guess = get_initial_guess(altitude, mach_number, N1c, dTamb, IC_interpolants);
@@ -146,6 +150,7 @@ for input_num = 1:num_inputs
         linearization_failure_mode = "Not attempted";
     end
 
+
     %% Load data into output struct/array
     outputs(input_num).altitude = altitude;
     outputs(input_num).mach_number = mach_number;
@@ -181,6 +186,7 @@ for input_num = 1:num_inputs
     end
 
 end
+
 
 %% Write outputs to file
 save('outputs.mat', 'outputs');

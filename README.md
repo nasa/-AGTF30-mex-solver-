@@ -1,3 +1,6 @@
+## Note: 
+Do not use the "bleeds_inputs" branch, all features are present on the "main" branch. We are trying to remove the bleeds_inputs branch but are having some technical difficulties.
+
 # MATLAB Executable (MEX) Steady-State Solver and Linearization Tool for the Advanced Geared Turbofan 30,000lbf (AGTF30)
 
 This is a MATLAB application for analyzing steady-state performance of the NASA Advanced Geared Turbofan 30,000lbf (AGTF30) engine. A modified version of the AGTF30 is included in the tool, with extra inputs representing torques from electric motors on each shaft. Engine models are created using the NASA Toolbox for the Modeling and Analysis of Thermodynamic Systems (T-MATS) and are pre-compiled into a MATLAB Executable (MEX) function for rapid repeated execution. The provided engine mode can be modified, or even swapped for a different engine model, as described in the full user guide.

@@ -59,6 +59,7 @@ for i=1:length(MaxIter_array)
         20  120]; % LPT NcMap
 end
 
+
 %% Make sure number of independents equals number of dependents
 if (sum(Ivec) ~= sum(Dvec))
     if ENABLE_DEBUG
@@ -75,6 +76,7 @@ if (sum(Ivec) ~= sum(Dvec))
     return;
 end
 
+
 %% Run solver with each set of parameters specified
 for solver_paramater_index = 1:length(MaxIter_array)
     solver_iterations = 0;
@@ -86,6 +88,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
     NRASS = NRASS_array(solver_paramater_index);
     JPerSS = JPerSS_array(solver_paramater_index);
     NumJPerSS = NumJPerSS_array(solver_paramater_index);
+
 
     %% Initial call to mex function
     CMD = CMD_IN;
@@ -101,6 +104,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
         return;
     end
     
+
     %% Initial Jacobian calculation 
     Jpos = NaN(sum(Ivec),sum(Dvec)); % Initialize positive perturbation matrix 
     Jneg = NaN(sum(Ivec),sum(Dvec)); % Initialize negative perturbation matrix 
@@ -165,6 +169,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
     end
     Jinv = inv(J);
     
+
     %% Iterate until convergence reached or MaxIter reached 
     while (solver_iterations < MaxIter)
         solver_iterations = solver_iterations + 1;
@@ -266,6 +271,7 @@ for solver_paramater_index = 1:length(MaxIter_array)
     end
 
 end % while loop
+
 
 %% = Reaching this point means convergence not achieved. Return zero. 
 converged = 0;

@@ -12,6 +12,7 @@ function [inputs_array, num_inputs] = load_inputs_from_csv()
     inputs = readmatrix('inputs.csv');
     num_inputs = size(inputs, 1); 
 
+
     %% Preallocate inputs_array object
     inputs_array = repmat(struct('altitude', NaN, ...
         'mach_number', NaN, ...
@@ -19,6 +20,7 @@ function [inputs_array, num_inputs] = load_inputs_from_csv()
         'dTamb', NaN, ...
         'health_params', NaN), ...
         num_inputs, 1);
+    
     
     %% Package into inputs_array
     for row = 1:num_inputs

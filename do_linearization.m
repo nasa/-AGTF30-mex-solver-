@@ -51,6 +51,14 @@ solver_targets = [   NaN;     % LPC_SM_target
     NaN;     % LPT_HPXratio_target
     NaN];    % Fnet_target
 
+
+%% Initialize A, B, C, D matrices in case linearization routine fails
+A = [];
+B = [];
+C = [];
+D = [];
+
+
 %% State 1: Low-pressure shaft speed (N2)
 N1c_perturbation = N1c * PERTURBATION_FRACTION;
 N2_perturbation = X_trim(1) * PERTURBATION_FRACTION;
@@ -125,6 +133,7 @@ C_col1n = -(Y - Y_trim) ./ N2_perturbation;
 A_col1 = (A_col1p + A_col1n)/2;
 C_col1 = (C_col1p + C_col1n)/2;
 
+
 %% State 2: High-pressure shaft speed (N3)
 N3_perturbation = X_trim(2) * PERTURBATION_FRACTION;
 
@@ -194,6 +203,7 @@ C_col2n = -(Y - Y_trim) ./ N3_perturbation;
 A_col2 = (A_col2p + A_col2n)/2;
 C_col2 = (C_col2p + C_col2n)/2;
 
+
 %% Input 1: Fuel flow (Wf)
 fuel_flow_perturbation = solver_independents_solution_trim(8) * PERTURBATION_FRACTION;
 
@@ -262,6 +272,7 @@ D_col1n = -(Y - Y_trim) ./ fuel_flow_perturbation;
 % Average positive and negative perturbations
 B_col1 = (B_col1p + B_col1n)/2;
 D_col1 = (D_col1p + D_col1n)/2;
+
 
 %% Input 2: High-pressure shaft power injection (from electric motor)
 if solver_independents_solution_trim(13) == 0
@@ -341,6 +352,7 @@ D_col2n = -(Y - Y_trim) ./ HP_trq_perturbation;
 B_col2 = (B_col2p + B_col2n)/2;
 D_col2 = (D_col2p + D_col2n)/2;
 
+
 %% Input 3: Low-pressure shaft power injection (from electric motor)
 % Perturbing LP from 0 must use addition of constant rather than multiplication.
 % Made to be the same amount as HP pwr perturbation.
@@ -415,6 +427,7 @@ D_col3n = -(Y - Y_trim) ./ LP_trq_perturbation;
 % Average positive and negative perturbations
 B_col3 = (B_col3p + B_col3n)/2;
 D_col3 = (D_col3p + D_col3n)/2;
+
 
 %% State-space matrices
 A = [A_col1 A_col2];
