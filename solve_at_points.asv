@@ -81,40 +81,37 @@ outputs = repmat(struct('altitude', NaN, ...
 
 %% Iterate through all specified operating conditions
 for input_num = 1:num_inputs
-    altitude_sensed = inputs_array(input_num).altitude;
-    mach_number_sensed = inputs_array(input_num).mach_number;
-    N1c_sensed = inputs_array(input_num).N1c;
+    altitude = inputs_array(input_num).altitude;
+    mach_number = inputs_array(input_num).mach_number;
+    N1c_in = inputs_array(input_num).N1c;
     dTamb = inputs_array(input_num).dTamb;
     health_params = inputs_array(input_num).health_params;
 
-    if ~in_envelope(altitude_sensed, mach_number_sensed, dTamb)
-        disp(['Altitude ' num2str(altitude_sensed) ', Mach Number ' num2str(mach_number_sensed) ...
+    if ~in_envelope(altitude, mach_number, dTamb)
+        disp(['Altitude ' num2str(altitude) ', Mach Number ' num2str(mach_number) ...
             ', dTamb ' num2str(dTamb) ' is beyond engine flight envelope. ' ...
             'Convergence is highly unlikely.']);
     end
 
 
-    %% Get T2 at the operating condition
-    environmental_conditions = [altitude_sensed, mach_number_sensed, dTamb]';
+    %% Get environmental conditions at the operating condition
+    environmental_conditions = [altitude, mach_number, dTamb]';
     ambient_conditions = Ambient_C(environmental_conditions);
-
-    % Apply T2 sensor bias
-    T2_actual = ambient_conditions(1);
-    T2_sensed = T2_actual + inputs_array(input_num).biases.Tt2;
+    T2 = ambient_conditions(1);
 
 
     %% Get initial guess for solver
-    % Apply N1 sensor bias, which will change the speed the model actually runs at.
-    N1c_actual = (N1c_sensed * sqrt(T2_sensed/STANDARD_DAY_TEMPERATURE_R) - inputs_array(input_num).biases.N1mech) / sqrt(T2_actual/STANDARD_DAY_TEMPERATURE_R);
+    % Apply N1 mechanical bias, which will change the speed the model actually runs at.
+    N1c_biased = (N1c_in * sqrt(T2/STANDARD_DAY_TEMPERATURE_R) + inputs_array(input_num).biases.N1mech) / sqrt(T2/STANDARD_DAY_TEMPERATURE_R);
 
-    solver_initial_guess = get_initial_guess(altitude_sensed, mach_number_sensed, N1c_actual, dTamb, IC_interpolants);
+    solver_initial_guess = get_initial_guess(altitude, mach_number, N1c_biased, dTamb, IC_interpolants);
 
     % Overwrite VAFN and VBV inputs if we want them to be open-loop scheduled
-    solver_initial_guess(9) = VAFN_interpolant(mach_number_sensed, N1c_sensed);
-    solver_initial_guess(10) = VBV_interpolant(mach_number_sensed, N1c_sensed);
+    solver_initial_guess(9) = VAFN_interpolant(mach_number, N1c_biased);
+    solver_initial_guess(10) = VBV_interpolant(mach_number, N1c_biased);
     
     % Overwrite N2 input since we are targeting a specific N1c
-    solver_initial_guess(11) = N1c_actual * sqrt(T2_actual/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
+    solver_initial_guess(11) = N1c_biased * sqrt(T2/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
 
     % These lines can be used to manually set electric motor power injections.
     % Negative values correspond to power extraction.
@@ -147,7 +144,7 @@ for input_num = 1:num_inputs
 
     if convergence_reached
         [A, B, C, D, linearization_failure_mode] = do_linearization(solver_independents_solution, ...
-            X, Y, altitude_sensed, mach_number_sensed, N1c_actual, VAFN_interpolant, VBV_interpolant, ...
+            X, Y, altitude, mach_number, N1c_biased, VAFN_interpolant, VBV_interpolant, ...
             environmental_conditions, health_params, bleeds, DO_ELECTRIC_MOTORS, ENABLE_DEBUG);
     else
         A = [];
@@ -159,9 +156,9 @@ for input_num = 1:num_inputs
 
 
     %% Load data into output struct/array
-    outputs(input_num).altitude = altitude_sensed;
-    outputs(input_num).mach_number = mach_number_sensed;
-    outputs(input_num).N1c = N1c_sensed;
+    outputs(input_num).altitude = altitude;
+    outputs(input_num).mach_number = mach_number;
+    outputs(input_num).N1c = N1c_in;
     outputs(input_num).dTamb = dTamb;
     outputs(input_num).health_params = health_params;
     outputs(input_num).biases = inputs_array(input_num).biases;
@@ -186,10 +183,10 @@ for input_num = 1:num_inputs
     
     %% Display to terminal
     if convergence_reached
-        disp(['Alt = ' num2str(altitude_sensed) ' MN = ' num2str(mach_number_sensed) ' N1c_in = ' num2str(N1c_sensed) ...
+        disp(['Alt = ' num2str(altitude) ' MN = ' num2str(mach_number) ' N1c_in = ' num2str(N1c_in) ...
             ' Solved successfully. Solver iterations: ' num2str(solver_iterations)]);
     else
-        disp(['Alt = ' num2str(altitude_sensed) ' MN = ' num2str(mach_number_sensed) ' N1c_in = ' num2str(N1c_sensed) ...
+        disp(['Alt = ' num2str(altitude) ' MN = ' num2str(mach_number) ' N1c_in = ' num2str(N1c_in) ...
             ' DID NOT CONVERGE! Solver iterations: ' num2str(solver_iterations)]);
     end
 
