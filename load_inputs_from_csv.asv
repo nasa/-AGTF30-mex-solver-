@@ -29,11 +29,6 @@ function [inputs_array, num_inputs] = load_inputs_from_csv()
         inputs_array(row).N1c = inputs(row+2, 5);
         inputs_array(row).dTamb = inputs(row+2, 6);
         inputs_array(row).health_params = inputs(row+2, 8:20);
-        inputs_array(row).biases.Pt0 = inputs(row+2, 22);
-        inputs_array(row).biases.Pt2 = inputs(row+2, 22);
-        inputs_array(row).biases.Tt2 = inputs(row+2, 22);
-        inputs_array(row).biases.N1mech = inputs(row+2, 22);
-        inputs_array(row).biases.VBV = inputs(row+2, 22);
-        inputs_array(row).biases.VAFN = inputs(row+2, 22);
+        inputs_array(row).biases.Pt0
     end
 end
