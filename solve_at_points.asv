@@ -4,7 +4,7 @@
 % May 30, 2024
 
 % This script loads in engine model data, loads in the user's chosen 
-% operating conditions (specified in inputs.xlsx), and iterates through 
+% operating conditions (specified in inputs.csv), and iterates through 
 % each condition. At each condition, a Newton-Raphson solver is invoked 
 % to solve for the engine's steady-state. Outputs are written to
 % outputs.mat.
@@ -81,37 +81,79 @@ outputs = repmat(struct('altitude', NaN, ...
 
 %% Iterate through all specified operating conditions
 for input_num = 1:num_inputs
-    altitude = inputs_array(input_num).altitude;
-    mach_number = inputs_array(input_num).mach_number;
-    N1c_in = inputs_array(input_num).N1c;
-    dTamb = inputs_array(input_num).dTamb;
+    altitude_actual = inputs_array(input_num).altitude;
+    mach_number_actual = inputs_array(input_num).mach_number;
+    N1c_actual = inputs_array(input_num).N1c;
+    dTamb_actual = inputs_array(input_num).dTamb;
     health_params = inputs_array(input_num).health_params;
 
-    if ~in_envelope(altitude, mach_number, dTamb)
-        disp(['Altitude ' num2str(altitude) ', Mach Number ' num2str(mach_number) ...
-            ', dTamb ' num2str(dTamb) ' is beyond engine flight envelope. ' ...
+    if ~in_envelope(altitude_actual, mach_number_actual, dTamb_actual)
+        disp(['Altitude ' num2str(altitude_actual) ', Mach Number ' num2str(mach_number_actual) ...
+            ', dTamb ' num2str(dTamb_actual) ' is beyond engine flight envelope. ' ...
             'Convergence is highly unlikely.']);
     end
 
 
-    %% Get environmental conditions at the operating condition
-    environmental_conditions = [altitude, mach_number, dTamb]';
+    %% Calculate ambient conditions
+    environmental_conditions = [altitude_actual, mach_number_actual, dTamb_actual]';
     ambient_conditions = Ambient_C(environmental_conditions);
-    T2 = ambient_conditions(1);
+
+
+    %% Apply sensor biases
+    % Tt2 sensor bias
+    Tt2_actual = ambient_conditions(1); % Tt2 = Tt0 in the AGTF30 model
+    Tt2_sensed = Tt2_actual + inputs_array(input_num).biases.Tt2;
+
+    % Ptamb sensor bias
+    Pamb_actual = ambient_conditions(4); % Ambient pressure = Ps0
+    Pamb_sensed = Pamb_actual + inputs_array(input_num).biases.Ptamb;
+
+    % Pt2 sensor bias, which impacts Pt0 measurement
+    Pt0_actual = ambient_conditions(2);
+
+    
+    inlet_struct.Rambase = 1.0;
+    inlet_struct.RamVec = [0.9, 1, 1.007, 1.028, 1.065, 1.117, 1.276, 1.525, 1.692];
+    inlet_struct.Ramtbl = [0.995, 0.995, 0.996, 0.997, 0.997, 0.998, 0.998, 0.998, 0.998];
+    
+    % Interpolation to 
+    inlet_struct.Ram_sf = interp1(inlet_struct.RamVec, inlet_struct.Ramtbl, Pt0_actual/Pamb_actual);
+
+    Pt2_actual = Pt0_actual * inlet_struct.Rambase * inlet_struct.Ram_sf;
+    Pt2_sensed = Pt2_actual + inputs_array(input_num).biases.Pt2;
+
+    Pt0_sensed = Pt2_sensed / (inlet_struct.Rambase * inlet_struct.Ram_sf);
+
+
+    %% Calculate 'sensed' N1c and Mach values.
+    % *Sensed* N1c and Mach values are used to schedule variable bleed valve and variable 
+    % area fan nozzle, so sensor biases may result in these actuators running off-schedule.
+    % The model will still be run at the actual N1c and Mach specified by the user.
+
+    % Sensed N1c value
+    N1c_sensed = (N1c_actual * sqrt(Tt2_actual/STANDARD_DAY_TEMPERATURE_R) + ...
+        inputs_array(input_num).biases.N1mech) / sqrt(Tt2_sensed/STANDARD_DAY_TEMPERATURE_R);
+
+    % Sensed Mach value
+    GAMMA = 1.4; % typical value used by NASA T-MATS and many others
+    mach_number_sensed = sqrt((2/(GAMMA-1)) * ((Pt0_sensed/Pamb_sensed)^((GAMMA-1)/GAMMA)-1));
+
+    if imag(mach_number_sensed) ~= 0
+        disp(['Warning: Sensed Mach number calculation resulted in imaginary number ' ...
+            'due to Pt0_sensed > Pt2_sensed. Setting sensed Mach to 0.']);
+        mach_number_sensed = 0;
+    end
 
 
     %% Get initial guess for solver
-    % Apply N1 mechanical bias, which will change the speed the model actually runs at.
-    N1c_biased = (N1c_in * sqrt(T2/STANDARD_DAY_TEMPERATURE_R) + inputs_array(input_num).biases.N1mech) / sqrt(T2/STANDARD_DAY_TEMPERATURE_R);
-
-    solver_initial_guess = get_initial_guess(altitude, mach_number, N1c_biased, dTamb, IC_interpolants);
+    solver_initial_guess = get_initial_guess(altitude_actual, mach_number_actual, N1c_actual, dTamb_actual, IC_interpolants);
 
     % Overwrite VAFN and VBV inputs if we want them to be open-loop scheduled
-    solver_initial_guess(9) = VAFN_interpolant(mach_number, N1c_biased);
-    solver_initial_guess(10) = VBV_interpolant(mach_number, N1c_biased);
+    solver_initial_guess(9) = VAFN_interpolant(mach_number_actual, N1c_sensed) + inputs_array(input_num).biases.VAFN;
+    solver_initial_guess(10) = VBV_interpolant(mach_number_actual, N1c_sensed) + inputs_array(input_num).biases.VBV;
     
     % Overwrite N2 input since we are targeting a specific N1c
-    solver_initial_guess(11) = N1c_biased * sqrt(T2/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
+    solver_initial_guess(11) = N1c_actual * sqrt(Tt2_actual/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
 
     % These lines can be used to manually set electric motor power injections.
     % Negative values correspond to power extraction.
@@ -144,7 +186,7 @@ for input_num = 1:num_inputs
 
     if convergence_reached
         [A, B, C, D, linearization_failure_mode] = do_linearization(solver_independents_solution, ...
-            X, Y, altitude, mach_number, N1c_biased, VAFN_interpolant, VBV_interpolant, ...
+            X, Y, altitude_actual, mach_number_actual, N1c_actual, VAFN_interpolant, VBV_interpolant, ...
             environmental_conditions, health_params, bleeds, DO_ELECTRIC_MOTORS, ENABLE_DEBUG);
     else
         A = [];
@@ -156,10 +198,10 @@ for input_num = 1:num_inputs
 
 
     %% Load data into output struct/array
-    outputs(input_num).altitude = altitude;
-    outputs(input_num).mach_number = mach_number;
-    outputs(input_num).N1c = N1c_in;
-    outputs(input_num).dTamb = dTamb;
+    outputs(input_num).altitude = altitude_actual;
+    outputs(input_num).mach_number = mach_number_actual;
+    outputs(input_num).N1c = N1c_sensed;
+    outputs(input_num).dTamb = dTamb_actual;
     outputs(input_num).health_params = health_params;
     outputs(input_num).biases = inputs_array(input_num).biases;
     outputs(input_num).converged = convergence_reached;
@@ -183,10 +225,10 @@ for input_num = 1:num_inputs
     
     %% Display to terminal
     if convergence_reached
-        disp(['Alt = ' num2str(altitude) ' MN = ' num2str(mach_number) ' N1c_in = ' num2str(N1c_in) ...
+        disp(['Alt = ' num2str(altitude_actual) ' MN = ' num2str(mach_number_actual) ' N1c = ' num2str(N1c_sensed) ...
             ' Solved successfully. Solver iterations: ' num2str(solver_iterations)]);
     else
-        disp(['Alt = ' num2str(altitude) ' MN = ' num2str(mach_number) ' N1c_in = ' num2str(N1c_in) ...
+        disp(['Alt = ' num2str(altitude_actual) ' MN = ' num2str(mach_number_actual) ' N1c = ' num2str(N1c_sensed) ...
             ' DID NOT CONVERGE! Solver iterations: ' num2str(solver_iterations)]);
     end
 
