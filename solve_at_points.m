@@ -119,7 +119,6 @@ for input_num = 1:num_inputs
     % Pt2 sensor bias, which impacts Pt0 measurement. Requires inlet data
     % from AGTF30 model and interpolation to get pressure drop across inlet
     Pt0_actual = ambient_conditions(2);
-
     inlet_struct.Rambase = 1.0;
     inlet_struct.RamVec = [0.9, 1, 1.007, 1.028, 1.065, 1.117, 1.276, 1.525, 1.692];
     inlet_struct.Ramtbl = [0.995, 0.995, 0.996, 0.997, 0.997, 0.998, 0.998, 0.998, 0.998];
@@ -127,18 +126,18 @@ for input_num = 1:num_inputs
 
     Pt2_actual = Pt0_actual * inlet_struct.Rambase * inlet_struct.Ram_sf;
     Pt2_sensed = Pt2_actual + inputs_array(input_num).biases.Pt2;
-
     Pt0_sensed = Pt2_sensed / (inlet_struct.Rambase * inlet_struct.Ram_sf);
 
 
     %% Calculate 'sensed' N1c and Mach values.
-    % If no biases are specified in inputs.csv, this section does nothing.
-    % *Sensed* N1c and Mach values are used to schedule variable bleed valve and variable 
-    % area fan nozzle, so sensor biases may result in these actuators running off-schedule.
-    % The model will still be run at the actual N1c and Mach specified by the user.
+    % Sensor biases may change *sensed* flight conditions, leading to off-schedule actuator positioning.
+    % The engine model will still be run at the actual flight conditions specified by the user.
+    % If no biases are specified in inputs.csv, sensed = actual.
 
-    % Sensed altitude
-    altitude_sensed = 0;
+    % Sensed altitude, looked up using Pamb_sensed and data from the TMATS ambient block
+    ambient_struct.AltVec = [-5000, 0, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 60000, 70000, 80000];
+    ambient_struct.PsVec = [17.554, 14.696, 12.228, 10.108, 8.297, 6.759, 5.461, 4.373, 3.468, 2.73, 2.149, 1.692, 1.049, 0.651, 0.406];
+    altitude_sensed = interp1(ambient_struct.PsVec, ambient_struct.AltVec, Pamb_sensed);
 
     % Sensed Mach value
     GAMMA = 1.4; % typical value used by NASA T-MATS and many others

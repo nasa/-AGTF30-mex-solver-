@@ -1,5 +1,4 @@
-% This file reformats engine outputs for use in machine-learning challenge 
-% problems
+% This file reformats information for use in machine-learning challenge problems
 
 if ~exist('outputs_challenge_problem', 'var')
     % Initialize machine-learning challenge problem outputs structure
@@ -28,25 +27,4 @@ outputs_challenge_problem(input_num).Y = [ Y(2); % LP shaft sensed speed
                                 Y(40); % Ps3
                                 Y(45); % Tt45
                                 Y(51)];% Tt5
-
-% outputs_challenge_problem = [altitude_sensed; % altitude_sensed
-% mach_number_sensed; % mach_number_sensed
-% % 
-% U(1); % wf
-% solver_initial_guess(9); % VAFN
-% solver_initial_guess(10); % VBV
-% % 
-% Y(2); % LP shaft sensed speed
-% Y(3); % HP shaft sensed speed
-% % 
-% Pamb_sensed; % Pamb
-% Tt2_sensed; % Tt2
-% Pt2_sensed; % Pt2
-% Y(35); % Tt25
-% Y(36); % Pt25
-% Y(38); % Tt3
-% Y(40); % Ps3
-% Y(45); % Tt45
-% Y(51)];% Tt5
-
 
