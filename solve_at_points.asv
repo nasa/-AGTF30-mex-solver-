@@ -99,10 +99,9 @@ for input_num = 1:num_inputs
     ambient_conditions = Ambient_C(environmental_conditions);
 
 
-    %% Apply pre-model sensor biases
-    % Only biases which affect engine steady-state (e.g. Tt2 is used to 
-    % calculate sensed N1c, which affects scheduling of VBV and VAFN). 
-    % Other biases will be applied after the model is called.
+    %% Apply sensor biases
+    % Only biases which affect engine steady-state. Other biases will be
+    % applied after the model is called.
 
     % Tt2 sensor bias
     Tt2_actual = ambient_conditions(1); % Tt2 = Tt0 in the AGTF30 model
@@ -200,17 +199,8 @@ for input_num = 1:num_inputs
     end
 
 
-    %% Apply post-model sensor biases
-    % These are sensor biases which do NOT affect the engine's steady-state condition.
-    U(1) = U(1) + inputs_array(input_num).biases.Wf;
-
-    Y(3) = Y(3) + inputs_array(input_num).biases.N3mech;
-    Y(35) = Y(35) + inputs_array(input_num).biases.Tt25;
-    Y(36) = Y(36) + inputs_array(input_num).biases.Pt25;
-    Y(38) = Y(38) + inputs_array(input_num).biases.Tt3;
-    Y(40) = Y(40) + inputs_array(input_num).biases.Ps3;
-    Y(45) = Y(45) + inputs_array(input_num).biases.Tt45;
-    Y(51) = Y(51) + inputs_array(input_num).biases.Tt5;
+    %% Apply sensor biases
+    % These are sensor biases which do NOT affect the 
 
 
     %% Load data into output struct/array
