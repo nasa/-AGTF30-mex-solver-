@@ -13,6 +13,7 @@ clear; clc;
 
 %% Definition of constants
 DO_ELECTRIC_MOTORS = true; % if true, then the U-vector will include electric motor powers
+DO_ML_CHALLENGE_PROBLEM = true; % enables some scripts for machine-learning challenge problems
 ENABLE_DEBUG = true; % setting to true will enable error and warning messages in the terminal
 
 STANDARD_DAY_TEMPERATURE_R = 518.67; % defined by International Standard Atmosphere
@@ -53,6 +54,9 @@ solver_targets = [  NaN;    %--- LPC_SM_target ---
 
 %% Setup simulations
 addpath('engine_model');
+if DO_ML_CHALLENGE_PROBLEM
+    addpath('ML_challenge_problem');
+end
 
 load("AGTF30_simulink_data.mat");
 construct_gridded_interpolants;
@@ -133,9 +137,8 @@ for input_num = 1:num_inputs
     % area fan nozzle, so sensor biases may result in these actuators running off-schedule.
     % The model will still be run at the actual N1c and Mach specified by the user.
 
-    % Sensed N1c value
-    N1c_sensed = (N1c_actual * sqrt(Tt2_actual/STANDARD_DAY_TEMPERATURE_R) + ...
-        inputs_array(input_num).biases.N1mech) / sqrt(Tt2_sensed/STANDARD_DAY_TEMPERATURE_R);
+    % Sensed altitude
+    altitude_sensed = 0;
 
     % Sensed Mach value
     GAMMA = 1.4; % typical value used by NASA T-MATS and many others
@@ -146,6 +149,10 @@ for input_num = 1:num_inputs
             'due to Pt0_sensed > Pt2_sensed. Setting sensed Mach to 0.']);
         mach_number_sensed = 0;
     end
+
+    % Sensed N1c value
+    N1c_sensed = (N1c_actual * sqrt(Tt2_actual/STANDARD_DAY_TEMPERATURE_R) + ...
+        inputs_array(input_num).biases.N1mech) / sqrt(Tt2_sensed/STANDARD_DAY_TEMPERATURE_R);
 
 
     %% Get initial guess for solver
@@ -248,9 +255,18 @@ for input_num = 1:num_inputs
             ' DID NOT CONVERGE! Solver iterations: ' num2str(solver_iterations)]);
     end
 
+
+    %% Do outputs formatting for machine-learning challenge problem
+    if DO_ML_CHALLENGE_PROBLEM
+        make_outputs_ML_challenge;
+    end
+
 end
 
 
 %% Write outputs to file
 save('outputs.mat', 'outputs');
+if DO_ML_CHALLENGE_PROBLEM
+    save('ML_challenge_problem/outputs_challenge_problem.mat', 'outputs_challenge_problem');
+end
 disp('Finished, saved outputs to file');
