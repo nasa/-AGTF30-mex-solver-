@@ -91,10 +91,12 @@ for input_num = 1:num_inputs
     dTamb_actual = inputs_array(input_num).dTamb;
     health_params = inputs_array(input_num).health_params;
 
-    if ~in_envelope(altitude_actual, mach_number_actual, dTamb_actual)
+    if ~in_envelope(altitude_actual, mach_number_actual, dTamb_actual) 
+        if ENABLE_DEBUG
         disp(['Altitude ' num2str(altitude_actual) ', Mach Number ' num2str(mach_number_actual) ...
             ', dTamb ' num2str(dTamb_actual) ' is beyond engine flight envelope. ' ...
             'Convergence is highly unlikely.']);
+        end
     end
 
 
@@ -142,10 +144,11 @@ for input_num = 1:num_inputs
     % Sensed Mach value
     GAMMA = 1.4; % typical value used by NASA T-MATS and many others
     mach_number_sensed = sqrt((2/(GAMMA-1)) * ((Pt0_sensed/Pamb_sensed)^((GAMMA-1)/GAMMA)-1));
-
     if imag(mach_number_sensed) ~= 0
+        if ENABLE_DEBUG
         disp(['Warning: Sensed Mach number calculation resulted in imaginary number ' ...
             'due to Pt0_sensed > Pt2_sensed. Setting sensed Mach to 0.']);
+        end
         mach_number_sensed = 0;
     end
 

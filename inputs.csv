@@ -1,9 +1,9 @@
 ﻿,,Basic Inputs,,,,,Engine Health Parameters,,,,,,,,,,,,,,Sensor/Actuator Biases Applied Before Model Call,,,,,,,,Sensor/Actuator Biases Applied After Model Call,,,,,,,
-Notes,,Altitude,Mach,N1c,dTamb,,fan_WcMod,fan_PRMod,fan_EffMod,lpc_WcMod,lpc_PRMod,lpc_EffMod,hpc_WcMod,hpc_PRMod,hpc_EffMod,hpt_WcMod,hpt_EffMod,lpt_WcMod,lpt_EffMod,,Pamb_bias,Pt2_bias,Tt2_bias,N1mech_bias,VBV_bias,VAFN_bias,HP_EM_pwr_bias,,N3mech,Wf_bias,Tt25_bias,Pt25_bias,Tt3_bias,Ps3_bias,Tt45_bias,Tt5_bias
+Notes,,Altitude,Mach,N1c,dTamb,,fan_WcMod,fan_PRMod,fan_EffMod,lpc_WcMod,lpc_PRMod,lpc_EffMod,hpc_WcMod,hpc_PRMod,hpc_EffMod,hpt_WcMod,hpt_EffMod,lpt_WcMod,lpt_EffMod,,Pamb_bias,Pt2_bias,Tt2_bias,N1mech_bias,VBV_bias,VAFN_bias,HP_EM_pwr_bias,,N3mech_bias,Wf_bias,Tt25_bias,Pt25_bias,Tt3_bias,Ps3_bias,Tt45_bias,Tt5_bias
 ,,0,0,1000,0,,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0
 ,,0,0.3,1500,27,,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0
 ,,10000,0.5,1750,0,,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0
 ,,25000,0.6,2000,-10,,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0
 Example of 'fully degraded' AGTF30's health parameters,,40000,0.8,2300,0,,-0.00441,0,-0.0322,-0.022,0,-0.0175,-0.00552,0,-0.05985,0.00132,-0.00225,0.0014,-0.0027,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0
 ,,30000,0.72,2000,0,,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,,0,0,0,0,0,0,0,0
-Example of biased sensors and actuators,,0,0,1000,0,,0,0,0,0,0,0,0,0,0,0,0,0,0,,-0.1,0,0,0,0,0,0,,1000,0,20,0,0,0,0,0
+Example of biased sensors and actuators,,0,0,1000,0,,0,0,0,0,0,0,0,0,0,0,0,0,0,,-0.1,0,0,0,0,0,0,,20,0,5,0,0,0,0,0
