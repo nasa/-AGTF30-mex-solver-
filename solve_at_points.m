@@ -162,8 +162,10 @@ for input_num = 1:num_inputs
 
     % Overwrite VAFN and VBV inputs if we want them to be open-loop scheduled
     solver_initial_guess(9) = VAFN_interpolant(mach_number_sensed, N1c_sensed) + inputs_array(input_num).biases.VAFN;
+    solver_initial_guess(9) = min(8000, max(0, solver_initial_guess(9)));
     solver_initial_guess(10) = VBV_interpolant(mach_number_sensed, N1c_sensed) + inputs_array(input_num).biases.VBV;
-    
+    solver_initial_guess(10) = min(1, max(0, solver_initial_guess(10)));
+
     % Overwrite N2 input since we are targeting a specific N1c
     solver_initial_guess(11) = N1c_actual * sqrt(Tt2_actual/STANDARD_DAY_TEMPERATURE_R) * GEAR_RATIO;
 
