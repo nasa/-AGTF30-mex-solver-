@@ -18,15 +18,15 @@ outputs_challenge_problem(input_num).U = [
     solver_initial_guess(10)];                  % VBV
 
 outputs_challenge_problem(input_num).Y = [ 
-    Y(2);           % LP shaft sensed speed
-    Y(3);           % HP shaft sensed speed
+    Y(2);           % LP shaft sensed speed (no bias 
+    Y(3) + inputs_array(input_num).biases.N3mech;   % HP shaft sensed speed
     Pamb_sensed;    % Pamb
     Tt2_sensed;     % Tt2
     Pt2_sensed;     % Pt2
-    Y(35);          % Tt25
-    Y(36);          % Pt25
-    Y(38);          % Tt3
-    Y(40);          % Ps3
-    Y(45);          % Tt45
-    Y(51)];         % Tt5
+    Y(35) + inputs_array(input_num).biases.Tt25;    % Tt25
+    Y(36) + inputs_array(input_num).biases.Pt25;    % Pt25
+    Y(38) + inputs_array(input_num).biases.Tt3;     % Tt3
+    Y(40) + inputs_array(input_num).biases.Ps3;     % Ps3
+    Y(45) + inputs_array(input_num).biases.Tt45;    % Tt45
+    Y(51) + inputs_array(input_num).biases.Tt5];    % Tt5
 

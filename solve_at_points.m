@@ -118,9 +118,10 @@ for input_num = 1:num_inputs
     Pamb_actual = ambient_conditions(4); % Ambient pressure = Ps0
     Pamb_sensed = Pamb_actual + inputs_array(input_num).biases.Ptamb;
 
-    % Pt2 sensor bias, which impacts Pt0 measurement. Requires inlet data
-    % from AGTF30 model and interpolation to get pressure drop across inlet
     Pt0_actual = ambient_conditions(2);
+
+    % Using the exact equations and tables from the AGTF30 model to get 
+    % the pressure drop across the inlet.
     inlet_struct.Rambase = 1.0;
     inlet_struct.RamVec = [0.9, 1, 1.007, 1.028, 1.065, 1.117, 1.276, 1.525, 1.692];
     inlet_struct.Ramtbl = [0.995, 0.995, 0.996, 0.997, 0.997, 0.998, 0.998, 0.998, 0.998];
@@ -128,10 +129,11 @@ for input_num = 1:num_inputs
 
     Pt2_actual = Pt0_actual * inlet_struct.Rambase * inlet_struct.Ram_sf;
     Pt2_sensed = Pt2_actual + inputs_array(input_num).biases.Pt2;
+
     Pt0_sensed = Pt2_sensed / (inlet_struct.Rambase * inlet_struct.Ram_sf);
 
 
-    %% Calculate 'sensed' N1c and Mach values.
+    %% Calculate 'sensed' Altitude, Mach, and N1c.
     % Sensor biases may change *sensed* flight conditions, leading to off-schedule actuator positioning.
     % The engine model will still be run at the actual flight conditions specified by the user.
     % If no biases are specified in inputs.csv, sensed = actual.
@@ -215,6 +217,7 @@ for input_num = 1:num_inputs
     % These are sensor biases which do NOT affect the engine's steady-state condition.
     U(1) = U(1) + inputs_array(input_num).biases.Wf;
 
+    Y(2) = GEAR_RATIO * (Y(1) + inputs_array(input_num).biases.N1mech);
     Y(3) = Y(3) + inputs_array(input_num).biases.N3mech;
     Y(35) = Y(35) + inputs_array(input_num).biases.Tt25;
     Y(36) = Y(36) + inputs_array(input_num).biases.Pt25;
