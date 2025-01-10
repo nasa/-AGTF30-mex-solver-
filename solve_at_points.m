@@ -265,7 +265,8 @@ for input_num = 1:num_inputs
 
     %% Do outputs formatting for machine-learning challenge problem
     if DO_ML_CHALLENGE_PROBLEM
-        make_outputs_ML_challenge;
+        make_training_set_ML_challenge;
+        make_test_set_ML_challenge;
     end
 
 end
@@ -274,6 +275,7 @@ end
 %% Write outputs to file
 save('outputs.mat', 'outputs');
 if DO_ML_CHALLENGE_PROBLEM
-    save('ML_challenge_problem/outputs_challenge_problem.mat', 'outputs_challenge_problem');
+    save('ML_challenge_problem/training_set_challenge_problem.mat', 'training_set_challenge_problem');
+    save('ML_challenge_problem/test_set_challenge_problem.mat', 'test_set_challenge_problem');
 end
 disp('Finished, saved outputs to file');
