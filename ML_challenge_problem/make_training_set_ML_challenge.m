@@ -17,6 +17,7 @@ if ~exist('training_set_challenge_problem', 'var')
     num_inputs, 1);
 end
 
+
 % Actual inputs
 training_set_challenge_problem(input_num).altitude_actual = inputs_array(input_num).altitude;
 training_set_challenge_problem(input_num).mach_number_actual = inputs_array(input_num).mach_number;
@@ -25,7 +26,7 @@ training_set_challenge_problem(input_num).dTamb_actual = inputs_array(input_num)
 
 training_set_challenge_problem(input_num).health_params = inputs_array(input_num).health_params;
 
-training_set_challenge_problem(input_num).biases = biases;
+training_set_challenge_problem(input_num).biases = inputs_array(input_num).biases;
 
 
 % Sensed outputs
@@ -49,6 +50,4 @@ training_set_challenge_problem(input_num).Y_sensed = [
     Y(40);          % Ps3
     Y(45);          % Tt45
     Y(51)];         % Tt5
-
-
 

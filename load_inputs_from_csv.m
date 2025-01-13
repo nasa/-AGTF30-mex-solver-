@@ -30,7 +30,13 @@ function [inputs_array, num_inputs] = load_inputs_from_csv()
         inputs_array(row).dTamb = inputs(row+2, 6);
 
         inputs_array(row).health_params = inputs(row+2, 8:20);
+        % For any health parameters that are "NaN", set their values to zero. 
+        % This may occur when there are blank cells in inputs.csv.
+        inputs_array(row).health_params(isnan(inputs_array(row).health_params)) = 0; 
 
         inputs_array(row).biases = [inputs(row+2, 22:28), inputs(row+2, 30:37)];
+        % For any biases that are "NaN", set their values to zero. 
+        % This may occur when there are blank cells in inputs.csv.
+        inputs_array(row).biases(isnan(inputs_array(row).biases)) = 0; 
     end
 end

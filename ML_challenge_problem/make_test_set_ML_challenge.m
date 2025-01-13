@@ -11,6 +11,7 @@ if ~exist('test_set_challenge_problem', 'var')
     num_inputs, 1);
 end
 
+
 % Sensed Outputs
 test_set_challenge_problem(input_num).altitude_sensed = altitude_sensed;
 test_set_challenge_problem(input_num).mach_number_sensed = mach_number_sensed;
