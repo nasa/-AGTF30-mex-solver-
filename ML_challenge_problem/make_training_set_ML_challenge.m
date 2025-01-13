@@ -25,7 +25,7 @@ training_set_challenge_problem(input_num).dTamb_actual = inputs_array(input_num)
 
 training_set_challenge_problem(input_num).health_params = inputs_array(input_num).health_params;
 
-training_set_challenge_problem(input_num).biases = inputs_array(input_num).biases;
+training_set_challenge_problem(input_num).biases = biases;
 
 
 % Sensed outputs
@@ -33,9 +33,9 @@ training_set_challenge_problem(input_num).altitude_sensed = altitude_sensed;
 training_set_challenge_problem(input_num).mach_number_sensed = mach_number_sensed;
 
 training_set_challenge_problem(input_num).U_sensed = [ 
-    U(1) + inputs_array(input_num).biases.Wf;   % Wf
-    solver_initial_guess(9);                    % VAFN
-    solver_initial_guess(10)];                  % VBV
+    U(1);                       % Wf
+    solver_initial_guess(9);    % VAFN
+    solver_initial_guess(10)];  % VBV
 
 training_set_challenge_problem(input_num).Y_sensed = [ 
     Y(2);           % LP shaft sensed speed

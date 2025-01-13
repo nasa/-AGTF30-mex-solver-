@@ -90,6 +90,7 @@ for input_num = 1:num_inputs
     N1c_actual = inputs_array(input_num).N1c;
     dTamb_actual = inputs_array(input_num).dTamb;
     health_params = inputs_array(input_num).health_params;
+    biases = inputs_array(input_num).biases;
 
     if ~in_envelope(altitude_actual, mach_number_actual, dTamb_actual) 
         if ENABLE_DEBUG
@@ -112,11 +113,11 @@ for input_num = 1:num_inputs
 
     % Tt2 sensor bias
     Tt2_actual = ambient_conditions(1); % Tt2 = Tt0 in the AGTF30 model
-    Tt2_sensed = Tt2_actual + inputs_array(input_num).biases.Tt2;
+    Tt2_sensed = Tt2_actual + biases(3);
 
     % Ptamb sensor bias
     Pamb_actual = ambient_conditions(4); % Ambient pressure = Ps0
-    Pamb_sensed = Pamb_actual + inputs_array(input_num).biases.Ptamb;
+    Pamb_sensed = Pamb_actual + biases(1);
 
     Pt0_actual = ambient_conditions(2);
 
@@ -128,7 +129,7 @@ for input_num = 1:num_inputs
     inlet_struct.Ram_sf = interp1(inlet_struct.RamVec, inlet_struct.Ramtbl, Pt0_actual/Pamb_actual);
 
     Pt2_actual = Pt0_actual * inlet_struct.Rambase * inlet_struct.Ram_sf;
-    Pt2_sensed = Pt2_actual + inputs_array(input_num).biases.Pt2;
+    Pt2_sensed = Pt2_actual + biases(2);
 
     Pt0_sensed = Pt2_sensed / (inlet_struct.Rambase * inlet_struct.Ram_sf);
 
@@ -155,17 +156,17 @@ for input_num = 1:num_inputs
     end
 
     % Sensed N1c value
-    N1c_sensed = (N1c_actual * sqrt(Tt2_actual/STANDARD_DAY_TEMPERATURE_R) + ...
-        inputs_array(input_num).biases.N1mech) / sqrt(Tt2_sensed/STANDARD_DAY_TEMPERATURE_R);
+    N1c_sensed = (N1c_actual * sqrt(Tt2_actual/STANDARD_DAY_TEMPERATURE_R) + biases(4)) ...
+    / sqrt(Tt2_sensed/STANDARD_DAY_TEMPERATURE_R);
 
 
     %% Get initial guess for solver
     solver_initial_guess = get_initial_guess(altitude_actual, mach_number_actual, N1c_actual, dTamb_actual, IC_interpolants);
 
     % Overwrite VAFN and VBV inputs if we want them to be open-loop scheduled
-    solver_initial_guess(9) = VAFN_interpolant(mach_number_sensed, N1c_sensed) + inputs_array(input_num).biases.VAFN;
+    solver_initial_guess(9) = VAFN_interpolant(mach_number_sensed, N1c_sensed) + biases(6);
     solver_initial_guess(9) = min(8000, max(0, solver_initial_guess(9)));
-    solver_initial_guess(10) = VBV_interpolant(mach_number_sensed, N1c_sensed) + inputs_array(input_num).biases.VBV;
+    solver_initial_guess(10) = VBV_interpolant(mach_number_sensed, N1c_sensed) + biases(5);
     solver_initial_guess(10) = min(1, max(0, solver_initial_guess(10)));
 
     % Overwrite N2 input since we are targeting a specific N1c
@@ -174,7 +175,7 @@ for input_num = 1:num_inputs
     % These lines can be used to manually set electric motor power injections.
     % Negative values correspond to power extraction.
     % High pressure shaft power injection (default is -350)
-    solver_initial_guess(13) = -350 - inputs_array(input_num).biases.HP_EM_pwr;
+    solver_initial_guess(13) = -350 - biases(7);
     % Low pressure shaft power injection (default is 0)
     solver_initial_guess(14) = 0;
 
@@ -215,16 +216,16 @@ for input_num = 1:num_inputs
 
     %% Apply post-model sensor biases
     % These are sensor biases which do NOT affect the engine's steady-state condition.
-    U(1) = U(1) + inputs_array(input_num).biases.Wf;
+    U(1) = U(1) + biases(9);                % Wf
 
-    Y(2) = GEAR_RATIO * (Y(1) + inputs_array(input_num).biases.N1mech);
-    Y(3) = Y(3) + inputs_array(input_num).biases.N3mech;
-    Y(35) = Y(35) + inputs_array(input_num).biases.Tt25;
-    Y(36) = Y(36) + inputs_array(input_num).biases.Pt25;
-    Y(38) = Y(38) + inputs_array(input_num).biases.Tt3;
-    Y(40) = Y(40) + inputs_array(input_num).biases.Ps3;
-    Y(45) = Y(45) + inputs_array(input_num).biases.Tt45;
-    Y(51) = Y(51) + inputs_array(input_num).biases.Tt5;
+    Y(2) = GEAR_RATIO * (Y(1) + biases(4)); % N2mech
+    Y(3) = Y(3) + biases(8);                % N3mech
+    Y(35) = Y(35) + biases(10);             % Tt25
+    Y(36) = Y(36) + biases(11);             % Pt25
+    Y(38) = Y(38) + biases(12);             % Tt3
+    Y(40) = Y(40) + biases(13);             % Ps3
+    Y(45) = Y(45) + biases(14);             % Tt45
+    Y(51) = Y(51) + biases(15);             % Tt5
 
 
     %% Load data into output struct/array
@@ -233,7 +234,7 @@ for input_num = 1:num_inputs
     outputs(input_num).N1c = N1c_sensed;
     outputs(input_num).dTamb = dTamb_actual;
     outputs(input_num).health_params = health_params;
-    outputs(input_num).biases = inputs_array(input_num).biases;
+    outputs(input_num).biases = biases;
     outputs(input_num).converged = convergence_reached;
     outputs(input_num).solver_independents_solution = solver_independents_solution;
     outputs(input_num).X = X;

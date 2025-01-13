@@ -16,9 +16,9 @@ test_set_challenge_problem(input_num).altitude_sensed = altitude_sensed;
 test_set_challenge_problem(input_num).mach_number_sensed = mach_number_sensed;
 
 test_set_challenge_problem(input_num).U_sensed = [ 
-    U(1) + inputs_array(input_num).biases.Wf;   % Wf
-    solver_initial_guess(9);                    % VAFN
-    solver_initial_guess(10)];                  % VBV
+    U(1);                       % Wf
+    solver_initial_guess(9);    % VAFN
+    solver_initial_guess(10)];  % VBV
 
 test_set_challenge_problem(input_num).Y_sensed = [ 
     Y(2);           % LP shaft sensed speed
